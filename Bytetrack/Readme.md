@@ -1,4 +1,7 @@
 # Requirements
+pip install -r Bytetrack_requirements.txt
+pip3 install cython; pip3 install 'git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI'
+pip3 install cython_bbox
 pip install -r requirements.txt
 
 # Tracker matching 

@@ -134,9 +134,9 @@ def precise_accuracy_track(label_track, model_track, basic_tracker=False):
                             
 
 
-label_file= "/home/sophie/HMM-Tracking/Bytetrack/videos/labels_with_atq.json"
-#bytetrack_result_file = "/home/sophie/HMM-Tracking/Bytetrack/videos/GR77_20200512_111314tracking_resut.json"
-track_base = "/home/sophie/HMM-Tracking/Bytetrack/videos/tmp"
+label_file= "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/labels_with_atq.json"
+#bytetrack_result_file = "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314tracking_resut.json"
+track_base = "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/tmp"
 
 
 label_track = read_data(label_file)
@@ -161,13 +161,13 @@ def score_for_mot_trackers():
 
 
 def score_for_various_artificial_observations():
-    for i in [18]: #range (2, len(label_track.keys()), 100): #[10, 100]:#
+    for i in range (2, len(label_track.keys()), 100): #[10, 100]:#  [18]: #
         observation_file="videos/GR77_20200512_111314DBN_resut_with_observations_visits_"+str(i)+".json"
         print(i, "ok")
         
         adding_atq(i, output_file=observation_file)
-        process_forwad_backward(observation_file,nbr_visit=i, json_save_path="/home/sophie/HMM-Tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_resut"+str(i)+".json")
-        Hmm_result_file="/home/sophie/HMM-Tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_resut"+str(i)+".json"
+        process_forwad_backward(observation_file,nbr_visit=i, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_resut"+str(i)+".json")
+        Hmm_result_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_resut"+str(i)+".json"
 
         hmm_track = read_data(Hmm_result_file)
         acc, rec, f1= precise_accuracy_track(label_track, hmm_track)
@@ -184,8 +184,8 @@ def score_for_visit_at_feeder():
     print("ok")
     observation_file="videos/GR77_20200512_111314DBN_resut_with_observations_feeder.json"
     adding_atq(1, output_file=observation_file)
-    process_forwad_backward(observation_file,nbr_visit=1, json_save_path="/home/sophie/HMM-Tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json")
-    Hmm_result_file="/home/sophie/HMM-Tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json"
+    process_forwad_backward(observation_file,nbr_visit=1, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json")
+    Hmm_result_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json"
     hmm_track = read_data(Hmm_result_file)
     acc, rec, f1= precise_accuracy_track(label_track, hmm_track)
     new_row= {'nbr of visits':"feeder", 'accuracy':acc, 'recall':rec, "f1":f1}
