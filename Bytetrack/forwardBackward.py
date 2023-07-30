@@ -10,19 +10,19 @@ import copy
 #!pip install opencv-python
 import cv2
 POWERFULNESS=2
-Home_folder=  "/home/sophie/HMM-Tracking/Bytetrack"
+Home_folder=  "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
 #en supposant que les observations sont independantes la normalisation à 1 des alpha et beta est acceptable 
 #la solution qui suivra sera de choisir l'identité la plus acceptée au niveau de L et de l'affecté à la localisation identifié dans le tracking 
 
 
-def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path="/home/sophie/HMM-Tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_resut.json"):
+def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_resut.json"):
     confidence_threshold = 0.2
     confidence_on_hmm_choice=2#1.5
     """_summary_
     parameter: confidence_threshold
 
     Returns:
-        write a video with ATQ and put the results in the file /home/sophie/HMM-Tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_resut.json
+        write a video with ATQ and put the results in the file /home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_resut.json
     """
     import numpy as np 
     def softmax(x):
