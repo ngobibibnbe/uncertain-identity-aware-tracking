@@ -55,6 +55,18 @@ def iou (boxA,boxB):
 
 
 def precise_accuracy_track(label_track, model_track, basic_tracker=False):
+    """cette fonction calcule le f1-score recall, accuracy des model par rapport au background
+    dedans, les score des trackers et des hMM based tracker sont calculés différemment car quand le hmm based tracker est seuillé, 
+    il y'a des id de track qu'il ne retourne pas dans son fichier de resultat.
+
+    Args:
+        label_track (_type_): _description_
+        model_track (_type_): _description_
+        basic_tracker (bool, optional): _description_. Defaults to False.
+
+    Returns:
+        _type_: _description_
+    """
     start=True 
     nbr_frame=0
     acc =0
@@ -88,7 +100,7 @@ def precise_accuracy_track(label_track, model_track, basic_tracker=False):
                 for label_atq, label_box in label_track[frame_id].items() :
                         max_iou=float('-inf')
                         for  model_atq, model_box in model_track[frame_id].items():
-                            if  label_atq!="observed" and model_atq!="observed":#fix the problem with the obseved on the label 
+                            if  label_atq!="observed" and model_atq!="observed" :#fix the problem with the obseved on the label 
                                 tmp = iou(model_box["rectangle"], label_box["rectangle"])
                                 if tmp>max_iou:
                                     matching_frame[label_atq]=model_atq
@@ -111,7 +123,7 @@ def precise_accuracy_track(label_track, model_track, basic_tracker=False):
                 for model_atq, model_box in model_track[frame_id].items() :
                         max_iou=float('-inf')
                         for  label_atq, label_box in label_track[frame_id].items():
-                            if  label_atq!="observed" and model_atq!="observed":#fix the problem with the obseved on the label 
+                            if  label_atq!="observed" and model_atq!="observed" :#fix the problem with the obseved on the label 
                                 tmp = iou(model_box["rectangle"], label_box["rectangle"])
                                 if tmp>max_iou:
                                     matching_frame[model_atq]=label_atq
@@ -187,7 +199,7 @@ def score_for_visit_at_feeder():
     process_forwad_backward(observation_file,nbr_visit=1, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json")
     Hmm_result_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json"
     hmm_track = read_data(Hmm_result_file)
-    acc, rec, f1= precise_accuracy_track(label_track, hmm_track)
+    acc, rec, f1= precise_accuracy_track(label_track, hmm_track, basic_tracker=True)
     new_row= {'nbr of visits':"feeder", 'accuracy':acc, 'recall':rec, "f1":f1}
     print(new_row)
     #hmm_result_with_visits = pd.concat([hmm_result_with_visits, pd.DataFrame([new_row])], ignore_index=True)    
