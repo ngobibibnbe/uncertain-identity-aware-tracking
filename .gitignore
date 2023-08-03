@@ -5,6 +5,9 @@ evaluation/annotations
 evaluation/pig_tracking_dataset
 evaluation/trash
 Bytetrack/YOLOX_outputs
+Bytetrack/Untitled2.ipynb
+Bytetrack/.ipynb_checkpoints
+
 *.xlsx
 *.pickle
 *.h5
