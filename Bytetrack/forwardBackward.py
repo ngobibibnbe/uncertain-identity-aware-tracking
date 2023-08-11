@@ -208,13 +208,13 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                 matrice_df[identity]= L[identity]["t="+str(t)]
         matrice_df=pd.DataFrame(matrice_df)"""
 
-        if idx==0: 
+        if idx<200: 
             try:
                 row_ind, col_ind = linear_sum_assignment(-matrice) #since the function is looking for the assignement minimizing the sum, we put the opposite of the propabiliy in cells 
             except:
                 print("exeption on this matrix")#,t,list(identities)[3], L[list(identities)[3]]["t="+str(t)], matrice)            
-            for idx, row in enumerate(row_ind):
-                data[str(t)]["current"][idx]["atq"] = list(identities)[col_ind[idx]]
+            for idx_row, row in enumerate(row_ind):
+                data[str(t)]["current"][idx_row]["atq"] = list(identities)[col_ind[idx_row]]
             
         else:
             hungarian= False 
@@ -241,7 +241,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
 
         
     ######################################################
-    #This smoothing will not be used 
+    #smoothing to make the tracker  take identities  from previous or future when it doesn't know what is the current identity 
 
     
     def get_track_from_id_and_time(track_id,t):
@@ -263,16 +263,16 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                     if track["atq"]=="None":
                         track_id=track["track_id"]
                         track["atq_from_previous"]="None"
-                        if t>gap: #"if not we can't do t-gap
+                        if t>=gap: #"if not we can't do t-gap
                             track_previous = get_track_from_id_and_time(track_id,t-1)
                             track_far_previous = get_track_from_id_and_time(track_id,t-gap)
-                            if track_previous!=None and track_far_previous!=None:
-                                if track_previous["atq_from_previous"]!="None" and track_far_previous["atq_from_previous"]!="None":
-                                    if track_previous["atq_from_previous"]== track_far_previous["atq_from_previous"]:
-                                        #print(t)
-                                        #print(track)
-                                        data[str(t)]["current"][idx]["atq_from_previous"]= track_previous["atq_from_previous"]
-                                        ##print(track)
+                            if  track_far_previous!=None:
+                                if  track_far_previous["atq_from_previous"]!="None":
+                                    #if track_previous["atq_from_previous"]== track_far_previous["atq_from_previous"]:
+                                    #print(t)
+                                    #print(track)
+                                    data[str(t)]["current"][idx]["atq_from_previous"]= track_previous["atq_from_previous"]
+                                    ##print(track)
                             #except(e):
                         #    #print("an exception occur this is its description:",e)
                     else:
@@ -361,7 +361,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
         ret_val, frame = cap.read()
         frame = cv2.circle(frame, center_coordinates, radius, color, thickness)
         if str(frame_id) in data.keys():
-            if (frame!="0" ):
+            if (frame_id!="0" ):
                 cv2.putText(frame, str(frame_id),(90+580, 20),0, 5e-3 * 200, (0,255,0),2)
                 for track in data[str(frame_id)]["current"]:
                     track_id=track["track_id"] 
