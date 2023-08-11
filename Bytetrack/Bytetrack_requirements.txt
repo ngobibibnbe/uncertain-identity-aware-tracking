@@ -16,6 +16,7 @@ motmetrics
 filterpy
 h5py
 opencv-python
+openpyxl
 
 # verified versions
 onnx
