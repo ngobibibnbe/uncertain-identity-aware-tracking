@@ -16,7 +16,7 @@ Home_folder=  "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
 
 
 def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_resut.json"):
-    confidence_threshold = 0.2
+    confidence_threshold = 0.5
     confidence_on_hmm_choice=2#1.5
     """_summary_
     parameter: confidence_threshold
@@ -198,7 +198,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
     #Atq are added by considering the animal on which the confidence on an identity was greater than confidence_threshold
     
 
-    for idx, t in enumerate( V[1:] ): 
+    for idx_t, t in enumerate( V[1:] ): 
         matrice=np.zeros((len(L[list(identities)[0]]["t="+str(t)]),len(list(identities))))
         for idx,identity in enumerate(list(identities)[:15]):
             matrice[:,idx]= L[identity]["t="+str(t)]
@@ -208,36 +208,27 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                 matrice_df[identity]= L[identity]["t="+str(t)]
         matrice_df=pd.DataFrame(matrice_df)"""
 
-        if idx<200: 
+        hungarian= False 
+        if hungarian== True:
+            #######Hungarian version whICH seems to be ok   
             try:
                 row_ind, col_ind = linear_sum_assignment(-matrice) #since the function is looking for the assignement minimizing the sum, we put the opposite of the propabiliy in cells 
             except:
-                print("exeption on this matrix")#,t,list(identities)[3], L[list(identities)[3]]["t="+str(t)], matrice)            
-            for idx_row, row in enumerate(row_ind):
-                data[str(t)]["current"][idx_row]["atq"] = list(identities)[col_ind[idx_row]]
-            
-        else:
-            hungarian= False 
-            if hungarian== True:
-                #######Hungarian version whICH seems to be ok   
-                try:
-                    row_ind, col_ind = linear_sum_assignment(-matrice) #since the function is looking for the assignement minimizing the sum, we put the opposite of the propabiliy in cells 
-                except:
-                    print("xeption on this matrix")#,t,list(identities)[3], L[list(identities)[3]]["t="+str(t)], matrice)            
-                for idx, row in enumerate(row_ind):
-                    data[str(t)]["current"][idx]["atq"] = list(identities)[col_ind[idx]]
-                    
-            else:
-                ##########version with the maximum one feeting 
-                for idx, track in enumerate(data[str(t)]["current"]):
-                    track["atq"] = "None"
-                    identity_with_max_val= np.argmax(matrice[idx])
-                    #print(identity_with_max_val, list(identities)[identity_with_max_val])
-                    if  L[list(identities)[identity_with_max_val]]["t="+str(t)][idx]>confidence_threshold:
-                        data[str(t)]["current"][idx]["atq"] = list(identities)[identity_with_max_val]
-
-
+                print("xeption on this matrix")#,t,list(identities)[3], L[list(identities)[3]]["t="+str(t)], matrice)            
+            for idx, row in enumerate(row_ind):
+                data[str(t)]["current"][idx]["atq"] = list(identities)[col_ind[idx]]
                 
+        else:
+            ##########version with the maximum one feeting 
+            for idx, track in enumerate(data[str(t)]["current"]):
+                track["atq"] = "None"
+                identity_with_max_val= np.argmax(matrice[idx])
+                #print(identity_with_max_val, list(identities)[identity_with_max_val])
+                if  L[list(identities)[identity_with_max_val]]["t="+str(t)][idx]>confidence_threshold:
+                    data[str(t)]["current"][idx]["atq"] = list(identities)[identity_with_max_val]
+
+
+            
 
         
     ######################################################
@@ -263,15 +254,15 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                     if track["atq"]=="None":
                         track_id=track["track_id"]
                         track["atq_from_previous"]="None"
-                        if t>=gap: #"if not we can't do t-gap
-                            track_previous = get_track_from_id_and_time(track_id,t-1)
+                        if t>1+gap: #"if not we can't do t-gap
+                            #track_previous = get_track_from_id_and_time(track_id,t-1)
                             track_far_previous = get_track_from_id_and_time(track_id,t-gap)
                             if  track_far_previous!=None:
                                 if  track_far_previous["atq_from_previous"]!="None":
                                     #if track_previous["atq_from_previous"]== track_far_previous["atq_from_previous"]:
                                     #print(t)
                                     #print(track)
-                                    data[str(t)]["current"][idx]["atq_from_previous"]= track_previous["atq_from_previous"]
+                                    data[str(t)]["current"][idx]["atq_from_previous"]= track_far_previous["atq_from_previous"]
                                     ##print(track)
                             #except(e):
                         #    #print("an exception occur this is its description:",e)
