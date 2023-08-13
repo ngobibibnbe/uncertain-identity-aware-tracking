@@ -296,7 +296,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                         data[str(t)]["current"][idx]["atq_from_future"]= track["atq"]
 
     smooting_from_future(data,gap=float('inf')) #=1000)#   4à secondes de gap
-    smooting_from_past(data,gap=1)#float('inf')) # 1000)#
+    smooting_from_past(data,gap=float('inf'))#1)#float('inf')) # 1000)#
 
     
 

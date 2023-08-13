@@ -143,13 +143,13 @@ def adding_atq(nbr_visit, output_file, labels_file=home_folder+"/videos/labels_w
                                         track_coin=coin
                                         
                                         
-                                observation.append(math.exp(eucledian_distance(feeder_center, track_coin)/10))
+                                observation.append(math.pow(eucledian_distance(feeder_center, track_coin),2))
                                 #l'observation est donné par la softmax sur les distance
                             ####transforming distances to probabilities  ****sophie peut être remplacer par une gaussienne plus tard
                             observation = np.array(observation)
                             observation = 1/(1+observation)
                             observation = observation/sum(observation)
-                            if max(observation)>=0.5:
+                            if max(observation)>=0.4:
                                 dbn_infos[str(frame_id)]["observation"][atq]=observation
                                 #dbn_infos[str(frame_id)]["observed"]=atq
                                 if flag==False:
