@@ -127,7 +127,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
         for t in V[1:]:
             #if t==400:
             #  #print(alpha[t],"***",beta[t])
-            L["t="+str(t)]=alpha[t]*beta[t]
+            L["t="+str(t)]=alpha[t]*beta[t] + alpha[t] + beta[t] #alpha[t]*beta[t]
             if L["t="+str(t)].sum()!=0:
                 L["t="+str(t)]=L["t="+str(t)]/L["t="+str(t)].sum()
 
