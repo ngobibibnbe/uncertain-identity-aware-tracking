@@ -116,7 +116,7 @@ def adding_atq(nbr_visit, output_file, labels_file=home_folder+"/videos/labels_w
                 
                 # je rajoute +50 frame de marge entre les debuts et fin de visites 
                 frame_id_debut = int((debut-dt.datetime(2020, 5, 12, 9, 0,0)).total_seconds()*24.63666666666)+100 # +2 secondes
-                frame_id_fin =  int((fin-dt.datetime(2020, 5, 12, 9, 0,0)).total_seconds()*24.63666666666)-100 #-2 secondes 
+                frame_id_fin =  min(frame_id_debut+2, int((fin-dt.datetime(2020, 5, 12, 9, 0,0)).total_seconds()*24.63666666666)-100 )#-2 secondes 
                 frame_id=frame_id_debut+1
                 flag=False
                 while frame_id<frame_id_fin: 
@@ -149,7 +149,7 @@ def adding_atq(nbr_visit, output_file, labels_file=home_folder+"/videos/labels_w
                             observation = np.array(observation)
                             observation = 1/(1+observation)
                             observation = observation/sum(observation)
-                            if max(observation)>=0.4:
+                            if max(observation)>=0.0:
                                 dbn_infos[str(frame_id)]["observation"][atq]=observation
                                 #dbn_infos[str(frame_id)]["observed"]=atq
                                 if flag==False:

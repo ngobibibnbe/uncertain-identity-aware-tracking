@@ -105,13 +105,13 @@ def precise_accuracy_track(label_track, model_track, basic_tracker=False):
                                 if tmp>max_iou:
                                     matching_frame[label_atq]=model_atq
                                     max_iou =tmp
-                        if label_atq!="observed" and matching[label_atq]==None  :  
+                        if label_atq!="observed" and matching[label_atq]==None and  max_iou!=float('-inf') :  
                             matching[label_atq] = matching_frame[label_atq] 
                 
             
                 shared_items = {k: matching_frame[k] for k in matching_frame if k in matching and matching[k] == matching_frame[k]}
                 #print(len(shared_items), len(matching.keys()))  
-                if len(matching.keys())!=0:
+                if len(matching.keys())!=0 and len(matching_frame.keys())!=0:
                     acc +=  len(shared_items)/len(matching_frame.keys())
                     rec += len(shared_items)/ len(label_track[frame_id].keys())
                 
@@ -195,11 +195,11 @@ def score_for_various_artificial_observations():
 def score_for_visit_at_feeder():
     print("ok")
     observation_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_resut_with_observations_feeder.json"
-    adding_atq(1, output_file=observation_file, feeder=True)
-    process_forwad_backward(observation_file,nbr_visit=1, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json")
+    #adding_atq(1, output_file=observation_file, feeder=True)
+    #process_forwad_backward(observation_file,nbr_visit=1, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json")
     Hmm_result_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json"
     hmm_track = read_data(Hmm_result_file)
-    acc, rec, f1= precise_accuracy_track(label_track, hmm_track, basic_tracker=True)
+    acc, rec, f1= precise_accuracy_track(label_track, hmm_track, basic_tracker=False)
     new_row= {'nbr of visits':"feeder", 'accuracy':acc, 'recall':rec, "f1":f1}
     print(new_row)
     #hmm_result_with_visits = pd.concat([hmm_result_with_visits, pd.DataFrame([new_row])], ignore_index=True)    
