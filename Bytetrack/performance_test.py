@@ -67,73 +67,73 @@ def precise_accuracy_track(label_track, model_track, basic_tracker=False):
     Returns:
         _type_: _description_
     """
+    import re
     start=True 
     nbr_frame=0
     acc =0
     rec=0
-    if basic_tracker==True:
+    """if basic_tracker==True:
         matching={}
         for frame_id in label_track.keys():
             for label_atq, label_box in label_track[frame_id].items() : 
                 if label_atq not in matching.keys() and label_atq!="observed":
                     matching[label_atq]=None 
-                    break
+                    break"""
             
     
-    for frame_id in label_track.keys():
+    def match_track_and_atq(label_track, model_track):
+            matching={}
+            for frame_id in label_track.keys():
+                if frame_id in model_track.keys() :
+                    
+                    for label_atq, label_box in label_track[frame_id].items() : 
+                        if label_atq not in matching.keys():
+                            max_iou=float('-inf')
+                            for model_atq, model_box in model_track[frame_id].items(): 
+                                #print(model_atq)
+                                if  label_atq!="observed" and model_atq!="observed":#fix the problem with the obseved on the label 
+                                    
+                                    """if str(model_atq)==str(label_atq):
+                                        print(model_atq, model_box["rectangle"], label_box["rectangle"])
+                                    """
+                                    
+                                    tmp = iou(model_box["rectangle"], label_box["rectangle"])
+                                    if tmp>=max_iou:
+                                        matching [label_atq]=model_atq
+                                        max_iou =tmp
+                
+                if len(matching.keys())== len(label_track[frame_id].keys()):
+                    break
+            return {value:key for key, value in matching.items() if float(key)>4800}
+    
+    if basic_tracker==True:
+        matching = match_track_and_atq(label_track, model_track)
+        print(matching)
+    
+    for frame_id in label_track.keys() :
         if frame_id in model_track.keys() :
             nbr_frame+=1
-            if basic_tracker==True:
-                if start:
-                    for label_atq, label_box in label_track[frame_id].items() : 
-                        max_iou=float('-inf')
-                        for model_atq, model_box in model_track[frame_id].items(): 
-                            #print(model_atq)
-                            if  label_atq!="observed" and model_atq!="observed":#fix the problem with the obseved on the label 
-                                tmp = iou(model_box["rectangle"], label_box["rectangle"])
-                                if tmp>=max_iou:
-                                    matching [label_atq]=model_atq
-                                    max_iou =tmp
-                    start=False
-                
-                matching_frame={}
-                for label_atq, label_box in label_track[frame_id].items() :
-                        max_iou=float('-inf')
-                        for  model_atq, model_box in model_track[frame_id].items():
-                            if  label_atq!="observed" and model_atq!="observed" :#fix the problem with the obseved on the label 
-                                tmp = iou(model_box["rectangle"], label_box["rectangle"])
-                                if tmp>max_iou:
-                                    matching_frame[label_atq]=model_atq
-                                    max_iou =tmp
-                        if label_atq!="observed" and matching[label_atq]==None and  max_iou!=float('-inf') :  
-                            matching[label_atq] = matching_frame[label_atq] 
-                
-            
-                shared_items = {k: matching_frame[k] for k in matching_frame if k in matching and matching[k] == matching_frame[k]}
-                #print(len(shared_items), len(matching.keys()))  
-                if len(matching.keys())!=0 and len(matching_frame.keys())!=0:
-                    acc +=  len(shared_items)/len(matching_frame.keys())
-                    rec += len(shared_items)/ len(label_track[frame_id].keys())
-                
-            else:  #Here is for the HMM approach 
-                
-                if frame_id==10066:
+            if frame_id==10066:
+                print("stop")
+            matching_frame={}
+            for model_atq, model_box in model_track[frame_id].items() :
+                    max_iou=float('-inf')
+                    for  label_atq, label_box in label_track[frame_id].items():
+                        if  label_atq!="observed" and model_atq!="observed" :#fix the problem with the obseved on the label 
+                            tmp = iou(model_box["rectangle"], label_box["rectangle"])
+                            if tmp>max_iou:
+                                if basic_tracker==True:
+                                    if model_atq in matching.keys(): #ca c'est pour les modèles qui crèent trop de nouvelles identités
+                                        matching_frame[matching[model_atq] ]=label_atq 
+                                else:
+                                    matching_frame[model_atq ]=label_atq 
+                                max_iou =tmp
+            filtered ={key:value for key,value in matching_frame.items() if value==key }
+            if len(matching_frame.keys())!=0:
+                acc = acc + len(filtered.keys())/ len(matching_frame.keys())
+                rec = rec+ len(filtered.keys())/ len(label_track[frame_id].keys())
+                if len(filtered.keys())/ len(label_track[frame_id].keys())>1:
                     print("stop")
-                matching_frame={}
-                for model_atq, model_box in model_track[frame_id].items() :
-                        max_iou=float('-inf')
-                        for  label_atq, label_box in label_track[frame_id].items():
-                            if  label_atq!="observed" and model_atq!="observed" :#fix the problem with the obseved on the label 
-                                tmp = iou(model_box["rectangle"], label_box["rectangle"])
-                                if tmp>max_iou:
-                                    matching_frame[model_atq]=label_atq
-                                    max_iou =tmp
-                filtered ={key:value for key,value in matching_frame.items() if value==key }
-                if len(matching_frame.keys())!=0:
-                    acc = acc + len(filtered.keys())/ len(matching_frame.keys())
-                    rec = rec+ len(filtered.keys())/ len(label_track[frame_id].keys())
-                    if len(filtered.keys())/ len(label_track[frame_id].keys())>1:
-                        print("stop")
 
 
     
@@ -165,6 +165,7 @@ import time
 
 def score_for_mot_trackers():
     for filename in os.listdir(track_base):
+        print(filename)
         track= read_data(track_base+"/"+filename)
         acc, rec, f1= precise_accuracy_track(label_track, track, basic_tracker=True)
         new_row= {'nbr of visits':0, 'accuracy':acc, 'recall':rec, "f1":f1}
@@ -196,7 +197,7 @@ def score_for_visit_at_feeder():
     print("ok")
     observation_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_resut_with_observations_feeder.json"
     #adding_atq(1, output_file=observation_file, feeder=True)
-    process_forwad_backward(observation_file,nbr_visit=1, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json")
+    #process_forwad_backward(observation_file,nbr_visit=1, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json")
     Hmm_result_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json"
     hmm_track = read_data(Hmm_result_file)
     acc, rec, f1= precise_accuracy_track(label_track, hmm_track, basic_tracker=False)
