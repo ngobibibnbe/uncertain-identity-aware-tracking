@@ -115,7 +115,7 @@ def adding_atq(nbr_visit, output_file, labels_file=home_folder+"/videos/labels_w
                 #d'identités quand deux animaux viennent bagarer à la mangeoire
                 
                 # je rajoute +50 frame de marge entre les debuts et fin de visites 
-                frame_id_debut = int((debut-dt.datetime(2020, 5, 12, 9, 0,0)).total_seconds()*24.63666666666)+100 # +2 secondes
+                frame_id_debut = int((debut-dt.datetime(2020, 5, 12, 9, 0,0)).total_seconds()*24.63666666666)+50 # +2 secondes
                 frame_id_fin =  min(frame_id_debut+2, int((fin-dt.datetime(2020, 5, 12, 9, 0,0)).total_seconds()*24.63666666666)-100 )#-2 secondes 
                 frame_id=frame_id_debut+1
                 flag=False
