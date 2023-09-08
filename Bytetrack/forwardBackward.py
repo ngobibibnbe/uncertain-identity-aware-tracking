@@ -16,7 +16,7 @@ Home_folder=  "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
 
 
 def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_resut.json"):
-    confidence_threshold = 0  #### sophie mod 
+    confidence_threshold = 0.3  #### sophie mod 
     confidence_on_hmm_choice=2#1.5
     """_summary_
     parameter: confidence_threshold
@@ -221,7 +221,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
         else:
             ##########version with the maximum one feeting 
             for idx, track in enumerate(data[str(t)]["current"]):
-                track["atq"] = "None"
+                data[str(t)]["current"][idx]["atq"] = None
                 identity_with_max_val= np.argmax(matrice[idx])
                 #print(identity_with_max_val, list(identities)[identity_with_max_val])
                 if  L[list(identities)[identity_with_max_val]]["t="+str(t)][idx]>confidence_threshold:
@@ -235,10 +235,37 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
     #smoothing to make the tracker  take identities  from previous or future when it doesn't know what is the current identity 
 
     
-    def get_track_from_id_and_time(track_id,t):
-        for idx, track in enumerate(data[str(t)]["current"]):
-                if track["track_id"]==track_id:
-                    return track
+    def get_track_from_id_and_time(track_id,t, gap=50, type="future"):
+        """the function look in the past or future of the dataframe to see if there is an object with the same track_id having an atq near by
+            la facon dont c'est implementé recommande un from previous avant from future 
+        Args:
+            track_id (_type_): _description_
+            t (_type_): _description_
+            gap (int, optional): _description_. Defaults to 50.
+            type (str, optional): _description_. Defaults to "future".
+
+        Returns:
+            _type_: _description_
+        """
+        while str(t) in  V[1:] :#in data.keys():
+            for idx, track in enumerate(data[str(t)]["current"]):
+                    if track["track_id"]==track_id :
+                        if track["atq"] is not None:
+                            return track["atq"]
+                        elif "atq_from_previous" in track.keys():
+                            if track["atq_from_previous"]is not None:
+                                return track["atq_from_previous"]
+                            
+                        elif "atq_from_future" in track.keys():
+                            if track["atq_from_future"] is not None:
+                                return track["atq_from_future"]
+            if type=="future":
+                t=t+gap
+            elif type=="past":
+                t=t-gap
+            else:
+                raise NameError("Type accepted are only future and past you provided "+type)
+        return None
 
         
         
@@ -251,52 +278,65 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
         """
         for t in V[1:] : 
             for idx, track in enumerate(data[str(t)]["current"]):
-                    if track["atq"]=="None":
+                    if track["atq"] is None:
                         track_id=track["track_id"]
-                        track["atq_from_previous"]="None"
-                        if t>1+gap: #"if not we can't do t-gap
+                        track["atq_from_previous"] =  None
+                        if t>1+gap and V[-1]-t>gap: #"if not we can't do t-gap
                             #track_previous = get_track_from_id_and_time(track_id,t-1)
-                            track_far_previous = get_track_from_id_and_time(track_id,t-gap)
-                            if  track_far_previous!=None:
-                                if  track_far_previous["atq_from_previous"]!="None":
+                            atq_previous = get_track_from_id_and_time(track_id,t-1,gap=gap, type="past")
+                            """if track_id==13:
+                                print(t, atq_previous)
+                                exit(0)"""
+                            atq_future  = get_track_from_id_and_time(track_id,t+1,gap=gap, type="future")
+                            if  atq_previous!=None and atq_future!=None:
+                                if  atq_previous!=atq_future:
                                     #if track_previous["atq_from_previous"]== track_far_previous["atq_from_previous"]:
                                     #print(t)
                                     #print(track)
-                                    data[str(t)]["current"][idx]["atq_from_previous"]= track_far_previous["atq_from_previous"]
+                                    data[str(t)]["current"][idx]["atq_from_previous"]= atq_previous+"fp"
                                     ##print(track)
+                            elif atq_previous is not None or atq_future is not None:
+                                   data[str(t)]["current"][idx]["atq_from_future"]= atq_previous+"fp" if atq_previous is not None else atq_future+"ff"
+                            else:
+                                data[str(t)]["current"][idx]["atq_from_previous"]=None
+                                    
                             #except(e):
                         #    #print("an exception occur this is its description:",e)
-                    else:
-                        data[str(t)]["current"][idx]["atq_from_previous"]= track["atq"]
+                    #else:
+                    #    data[str(t)]["current"][idx]["atq_from_previous"]= track["atq"]
 
 
     def smooting_from_future(data, gap=750):
         for t in reversed(V[1:]) : 
             for idx, track in enumerate(data[str(t)]["current"]):
-                    if track["atq"]=="None":
+                    if track["atq"] is None:
+                        if 'atq_from_future' in track.keys():
+                            continue 
                         track_id=track["track_id"]
-                        track["atq_from_future"]="None"
+                        track["atq_from_future"]=None
                         if V[-1]-t>gap:
-                            track_future = get_track_from_id_and_time(track_id,t+1)
-                            track_far_future = get_track_from_id_and_time(track_id,t+gap)
+                            atq_future = get_track_from_id_and_time(track_id,t+1)
+                            #track_far_future = get_track_from_id_and_time(track_id,t+gap)
 
-                            if track_future!=None and track_far_future!=None:
+                            if atq_future!=None :
+                                data[str(t)]["current"][idx]["atq_from_future"]= atq_future
+                                continue
+                            """if track_far_future!=None: 
 
-                                if track_future["atq_from_future"]!="None" and track_far_future["atq_from_future"]!="None":
+                                if track_future["atq_from_future"] is not None and track_far_future["atq_from_future"] is not None:
 
                                     if track_future["atq_from_future"]== track_far_future["atq_from_future"]:
-                                        #print(t)
-
                                         data[str(t)]["current"][idx]["atq_from_future"]= track_future["atq_from_future"]
                                         #print( data[str(t)]["current"][idx])
-                                        ##print(track)
+                                        ##print(track)"""
                             #except(e):
                         #    #print("an exception occur this is its description:",e)
+                    #modified 
                     #else:
                     #    data[str(t)]["current"][idx]["atq_from_future"]= track["atq"]
 
-    smooting_from_future(data,gap=100) #=1000)#   4à secondes de gap
-    smooting_from_past(data,gap=100) # 1000)#
+    smooting_from_past(data,gap=float('inf'))#=100) # 1000)#
+    smooting_from_future(data,gap=float('inf')) #=1000)#   4à secondes de gap
 
     
 
@@ -352,27 +392,26 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
         ret_val, frame = cap.read()
         frame = cv2.circle(frame, center_coordinates, radius, color, thickness)
         if str(frame_id) in data.keys():
-            if (frame_id!="0" ):
+            if (frame_id!="0") :
                 cv2.putText(frame, str(frame_id),(90+580, 20),0, 5e-3 * 200, (0,255,0),2)
                 for track in data[str(frame_id)]["current"]:
                     track_id=track["track_id"] 
                     tlwh = track["location"]
                     ##print(track)
                     atq= track["atq"] 
-                    if atq=="None" and "atq_from_previous" in track.keys() :
-                        if track["atq_from_previous"]!="None":
+                    if atq is None and "atq_from_previous" in track.keys() :
+                        if track["atq_from_previous"] is not None:
                             atq= track["atq_from_previous"]#+'fp'
-                        elif track["atq_from_future"]!="None":
-                            atq= track["atq_from_future"]#+'ff'
+                        elif track["atq_from_future"] is not None:
+                            atq= track["atq_from_future"]#+'ff'"""
                             
                     tid= str(track_id)+", atq:"+str(atq)
                     ##print(tid)
-                    if atq!="None":
+                    if atq is not None:
                         dct[atq]=(int(tlwh[0]), int(tlwh[1]), int(tlwh[2]), int(tlwh[3]) )
                         ##print("we create the dct")
                     cv2.rectangle(frame, (int(tlwh[0]), int(tlwh[1])), (int(tlwh[0])+int(tlwh[2]), int(tlwh[1])+int(tlwh[3])) ,(255,255,255), 2)
                     cv2.rectangle(frame, (580, 20), (90+580, 115+20) ,(255,255,255), 2)
-
                     cv2.putText(frame, str(tid),(int(tlwh[0]), int(tlwh[1])),0, 5e-3 * 200, (0,255,0),2)
                     
                 tracking_result[frame_id]=dct
