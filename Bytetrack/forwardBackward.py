@@ -16,7 +16,7 @@ Home_folder=  "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
 
 
 def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_resut.json"):
-    confidence_threshold = 0
+    confidence_threshold = 0  #### sophie mod 
     confidence_on_hmm_choice=2#1.5
     """_summary_
     parameter: confidence_threshold
@@ -292,11 +292,11 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                                         ##print(track)
                             #except(e):
                         #    #print("an exception occur this is its description:",e)
-                    else:
-                        data[str(t)]["current"][idx]["atq_from_future"]= track["atq"]
+                    #else:
+                    #    data[str(t)]["current"][idx]["atq_from_future"]= track["atq"]
 
-    smooting_from_future(data,gap=float('inf')) #=1000)#   4à secondes de gap
-    smooting_from_past(data,gap=float('inf')) # 1000)#
+    smooting_from_future(data,gap=100) #=1000)#   4à secondes de gap
+    smooting_from_past(data,gap=100) # 1000)#
 
     
 
