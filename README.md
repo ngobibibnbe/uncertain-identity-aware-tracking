@@ -29,4 +29,16 @@ performance_test.py tracker_test
 
 
 
+To get comparison between all the trackers and our proposed method (******maybe it's necessary to add external information to bytetrack at least in a basic way). 
+
+
+
+The dataset is available at : **** 
+
+
+
+
+
+
+
 
