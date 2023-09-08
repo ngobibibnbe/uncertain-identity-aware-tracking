@@ -16,7 +16,7 @@ Home_folder=  "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
 
 
 def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_resut.json"):
-    confidence_threshold = 0.3
+    confidence_threshold = 0
     confidence_on_hmm_choice=2#1.5
     """_summary_
     parameter: confidence_threshold
