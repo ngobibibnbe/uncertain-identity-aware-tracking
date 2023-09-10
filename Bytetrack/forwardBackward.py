@@ -16,7 +16,7 @@ Home_folder=  "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
 
 
 def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_resut.json"):
-    confidence_threshold = 0.3  #### sophie mod 
+    confidence_threshold = 0.#1  #### sophie mod 
     hungarian= False
     confidence_on_hmm_choice=2#1.5
     """_summary_
@@ -270,12 +270,13 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                         elif "atq_from_future" in track.keys():
                             if track["atq_from_future"] is not None:
                                 return track["atq_from_future"]
-            if type=="future":
-                t=t+gap
-            elif type=="past":
-                t=t-gap
-            else:
-                raise NameError("Type accepted are only future and past you provided "+type)
+                    break
+            #if type=="future":
+            #    t=t+gap
+            #elif type=="past":
+            #    t=t-gap
+            #else:
+            #    raise NameError("Type accepted are only future and past you provided "+type)
         return None
 
         
@@ -365,7 +366,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                     #else:
                     #    data[str(t)]["current"][idx]["atq_from_future"]= track["atq"]
 
-    smooting_from_past(data,gap=100) # 1000)#
+    #smooting_from_past(data,gap=100) # 1000)#
     #smooting_from_future(data,gap=float('inf')) #=1000)#   4à secondes de gap
 
     
@@ -429,10 +430,10 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                     tlwh = track["location"]
                     ##print(track)
                     atq= track["atq"] 
-                    if (atq is None) and ("atq_from_previous" in track.keys()) :
+                    """if (atq is None) and ("atq_from_previous" in track.keys()) :
                         if track["atq_from_previous"] is not None:
                             #print("previous", track["atq_from_previous"] )
-                            atq= track["atq_from_previous"]#+'fp'
+                            atq= track["atq_from_previous"]#+'fp'"""
                         #elif track["atq_from_future"] is not None:
                         #    #print("future",track["atq_from_future"] )
                         #    atq= track["atq_from_future"]#+'ff'
