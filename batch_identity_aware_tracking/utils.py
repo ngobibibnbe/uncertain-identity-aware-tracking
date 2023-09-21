@@ -49,7 +49,7 @@ sys.path.append(bytetrack_directory)
 video_path= "/home/sophie/uncertain-identity-aware-tracking/batch_identity_aware_tracking/111320-video.mp4"
 command = "python3 tools/demo_track_m.py video -f exps/example/mot/yolox_s_mix_det.py -c /home/sophie/uncertain-identity-aware-tracking/Bytetrack/models/yoloX_s_pig_trained_model_400_images.tar --path "+ video_path+"  --fuse --save_result --device gpu --fps 25 --conf 0.2 --track_thres 0.2  --match_thresh 1.0 --nms 0.45 --tsize 416"
 # Run the command
-result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=bytetrack_directory)
+"""result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=bytetrack_directory)
 # Check if the command was successful
 if result.returncode == 0:
     print("Command executed successfully.")
@@ -58,7 +58,7 @@ if result.returncode == 0:
 else:
     print("Command failed with error:")
     print(result.stderr)
-    
+    """
     
 ############pass video start and end as parameter to the extract atq part of the code 
 new_directory = "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
@@ -67,8 +67,8 @@ sys.path.append(new_directory)
 from ATQ import adding_atq
 from forwardBackward import process_forwad_backward
 
-track_file=video_path.split('.mp4')[0]+'tracking_resut.json'  ####
-dbn_file=video_path.split('.mp4')[0]+'DBN_resut.json'
+track_file=video_path.split('.mp4')[0]+'tracking_result.json'  ####
+dbn_file=video_path.split('.mp4')[0]+'DBN_result.json'
 observation_file=video_path.split('.mp4')[0]+"_resut_with_observations_feeder.json"
 video_debut=dt.datetime(2020, 5, 12, 9, 0,0) #to change 
 video_fin = dt.datetime(2020, 5, 12, 9, 9,59) #to change 
