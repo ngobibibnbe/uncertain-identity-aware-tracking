@@ -1,5 +1,5 @@
 # TODO: Update with exact module version
-numpy==1.23
+numpy==1.20
 torch>=1.7
 opencv_python
 loguru
@@ -25,3 +25,5 @@ onnx-simplifier
 tabulate 
 thop
 lap
+
+#il y'a souvent une erreur avec lap du à l'installation de numpy. il sur python 3.6 faut faire pip install numpy=1.20 --no-cache-dir puis lap avec no-cache-dir aussi puis relancer l'installation des requirements

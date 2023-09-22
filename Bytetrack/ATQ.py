@@ -16,11 +16,15 @@ home_folder= "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
 
 
 
-def adding_atq(nbr_visit, output_file, labels_file=home_folder+"/videos/labels_with_atq.json", feeder=False):
-    track_file=home_folder+"/videos/GR77_20200512_111314tracking_resut.json"
-    water_file=home_folder+"/videos/eau_parc6.xlsx"
-    dbn_file= home_folder+"/videos/GR77_20200512_111314DBN_resut.json"
-    feeder_file=home_folder+"/videos/donnees_insentec_lot77_parc6.xlsx"
+def adding_atq(nbr_visit, output_file, labels_file=home_folder+"/videos/labels_with_atq.json", feeder=False, 
+               video_debut=dt.datetime(2020, 5, 12, 9, 0,0),
+                video_fin= dt.datetime(2020, 5, 12, 9, 0,1), 
+                 track_file=home_folder+"/videos/GR77_20200512_111314tracking_result.json",
+                water_file=home_folder+"/videos/eau_parc6.xlsx",
+                dbn_file= home_folder+"/videos/GR77_20200512_111314DBN_result.json",
+                feeder_file=home_folder+"/videos/donnees_insentec_lot77_parc6.xlsx"
+               ):
+   
 
     with open(track_file) as f:
             tracks = json.load(f) 
@@ -33,7 +37,7 @@ def adding_atq(nbr_visit, output_file, labels_file=home_folder+"/videos/labels_w
     """ add atq depending on the labels file provided, and the number of observations we would like to have 
     
     Returns:
-        write in a file: /home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_resut_with_observations.json 
+        write in a file: /home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations.json 
     """
     
     with open(labels_file) as f:
@@ -97,8 +101,9 @@ def adding_atq(nbr_visit, output_file, labels_file=home_folder+"/videos/labels_w
         feeder_center=[131, 102]
 
         #on selectionne les visites qui sont sensées être dans la vidéo
-        water_visits = water_visits.loc[(water_visits["debut"]>dt.datetime(2020, 5, 12, 9, 0,0)) & (water_visits["debut"]<dt.datetime(2020, 5, 12, 9, 9,59)) ]
-        #feeder_visits = feeder_visits.loc[(feeder_visits["debut"]>dt.datetime(2020, 5, 12, 9, 0,0)) & (feeder_visits["debut"]<dt.datetime(2020, 5, 12, 9, 9,59)) ]
+        
+        water_visits = water_visits.loc[(water_visits["debut"]>video_debut ) & (water_visits["debut"]<video_fin) ]
+        #feeder_visits = feeder_visits.loc[(feeder_visits["debut"]>video_debut) & (feeder_visits["debut"]<dt.datetime(2020, 5, 12, 9, 9,59)) ]
         #print(len(water_visits), len(feeder_visits))
         
         
@@ -115,8 +120,8 @@ def adding_atq(nbr_visit, output_file, labels_file=home_folder+"/videos/labels_w
                 #d'identités quand deux animaux viennent bagarer à la mangeoire
                 
                 # je rajoute +50 frame de marge entre les debuts et fin de visites 
-                frame_id_debut = int((debut-dt.datetime(2020, 5, 12, 9, 0,0)).total_seconds()*24.63666666666)+50 # +2 secondes
-                frame_id_fin =  min(frame_id_debut+2, int((fin-dt.datetime(2020, 5, 12, 9, 0,0)).total_seconds()*24.63666666666)-100 )#-2 secondes 
+                frame_id_debut = int((debut-video_debut).total_seconds()*24.63666666666)+25 # +2 secondes
+                frame_id_fin =  min(frame_id_debut+2, int((fin-video_debut).total_seconds()*24.63666666666)-25 )#-2 secondes 
                 frame_id=frame_id_debut+1
                 flag=False
                 while frame_id<frame_id_fin: 

@@ -15,15 +15,15 @@ Home_folder=  "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
 #la solution qui suivra sera de choisir l'identité la plus acceptée au niveau de L et de l'affecté à la localisation identifié dans le tracking 
 
 
-def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_resut.json"):
-    confidence_threshold = 0.15#1  #### sophie mod 
+def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result.json", video_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314.mp4"):
+    confidence_threshold = 0.3#1  #### sophie mod 
     hungarian= False
     confidence_on_hmm_choice=2#1.5
     """_summary_
     parameter: confidence_threshold
 
     Returns:
-        write a video with ATQ and put the results in the file /home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_resut.json
+        write a video with ATQ and put the results in the file /home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_reslut.json
     """
     import numpy as np 
     def softmax(x):
@@ -149,9 +149,13 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
         b[str(identity)]={}
     initial_distribution = np.array([1/len(data["0"]["current"]) for i in data["0"]["current"] ])
     for frame_id, value in data.items():
+        
         if  frame_id!="0" and int(frame_id)<max_frame: #int(frame)>100: #(frame!="0" and int(frame)%25==0) or
             a["t="+frame_id]=np.array(value["matrice"]) ######### without the hungarian choice hungarian_choice(np.array(value["matrice"]))
 
+            if 360<int(frame_id)<430:
+                print(a["t="+frame_id].shape)
+            
             for identity in identities:
                 b[str(identity)]["t="+frame_id]=np.array([1 for i in value["matrice"][1] ])
 
@@ -177,8 +181,8 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
     for identity in identities_list [:15]:
         if True:#identity=='4809.0':
             L[identity], Beta[identity], Alpha[identity]= forward_backward_L(V=V,  a=a, b=b[str(identity)], initial_distribution=initial_distribution, T=V[-1] )#"""
-            #print(identity, "process finished")
-    
+            print(identity, "process finished")#"""
+            
 
 
 
@@ -186,7 +190,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
     ##################################Adding ATQ from the HMM #########################
     #Atq are added by considering the animal on which the confidence on an identity was greater than confidence_threshold
     
-    with open("videos/data.json", 'w') as outfile:
+    """with open("videos/data.json", 'w') as outfile:
         json.dump(data, outfile)
     
     with open("videos/L.json", 'w') as outfile:
@@ -197,7 +201,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
             data = json.load(f)  
     
     with open("videos/L.json") as f:
-            L = json.load(f) 
+            L = json.load(f) """
             
 
     for idx_t, t in enumerate( V[1:] ): 
@@ -263,14 +267,14 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                     elif "atq_from_future" in track.keys():
                         if track["atq_from_future"] is not None:
                             return track["atq_from_future"]
-                    #return None
-            print("ok**", t)
-            if type=="future":
-                t=t+gap
-            elif type=="past":
-                t=t-gap
-            else:
-                raise NameError("Type accepted are only future and past you provided "+type)
+                    return None
+            #print("ok**", t)
+            #if type=="future":
+            #    t=t+gap
+            #elif type=="past":
+            #    t=t-gap
+            #else:
+            #    raise NameError("Type accepted are only future and past you provided "+type)
         return None
 
         
@@ -329,6 +333,8 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
 
                             atq_future= None
                             atq_future  = get_track_from_id_and_time(track_id,t+gap,gap=gap, type="future")
+                            if data[str(t)]["current"][idx]["atq_from_previous"]!=None:
+                                takens_atq.append(data[str(t)]["current"][idx]["atq_from_previous"])
                             
                             atq_future = atq_future if atq_future not in takens_atq else None
 
@@ -357,12 +363,12 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
 
     
     ##print(tracks_with_atq)
-    video_path=Home_folder+"/videos/GR77_20200512_111314.mp4"
+    #video_path=Home_folder+"/videos/GR77_20200512_111314.mp4"
     cap = cv2.VideoCapture(video_path)
     width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)  # float
     height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)  # float
     fps = cap.get(cv2.CAP_PROP_FPS)
-    save_path= Home_folder+"/videos/GR77_20200512_111314_with_atq"+str(nbr_visit)+".mp4"
+    save_path=  video_path.split(".mp4")[0]+"_with_atq"+str(nbr_visit)+".mp4"
     vid_writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (int(width), int(height)))     
 
 
@@ -388,7 +394,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
     #cv2.imwrite("image_.jpg", frame) 
 
     #print("********************** we start writting in the video")
-    track_file=Home_folder+"/videos/GR77_20200512_111314tracking_resut.json"
+    track_file=video_path.split(".mp4")[0]+"tracking_result.json"  # Home_folder+"/videos/GR77_20200512_111314tracking_result.json"
     with open(track_file) as f:
             tracks = json.load(f) 
             
@@ -403,12 +409,13 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
         if str(frame_id) in data.keys():
             if (frame_id!="0") :
                 cv2.putText(frame, str(frame_id),(90+580, 20),0, 5e-3 * 200, (0,255,0),2)
-                for track in data[str(frame_id)]["current"]:
+                for idx,track in enumerate(data[str(frame_id)]["current"]):
                     track_id=track["track_id"] 
                     tlwh = track["location"]
                     ##print(track)
                     atq= track["atq"] 
-                    """if (atq is None) and ("atq_from_previous" in track.keys()) :
+                    tid= str(track_id)+", atq:"+str(atq)
+                    if (atq is None) and ("atq_from_previous" in track.keys()) :
                         if track["atq_from_previous"] is not None:
                             #print("previous", track["atq_from_previous"] )
                             atq= track["atq_from_previous"]#+'fp'
@@ -416,7 +423,8 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                             #print("future",track["atq_from_future"] )
                             atq= track["atq_from_future"]#+'ff'"""
                             
-                    tid= str(track_id)+", atq:"+str(atq)
+                    if (atq is not None):
+                        tid=tid+"("+str(round(L[atq]["t="+str(frame_id)][idx], 2))+")"
                     ##print(tid)
                     if atq is not None:
                         dct[atq]=(int(tlwh[0]), int(tlwh[1]), int(tlwh[2]), int(tlwh[3]) )
@@ -438,3 +446,5 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
 
 
 #process_forwad_backward()
+#ajouter qui est au feeder sur la video
+#rely on track  ligne 196 on des points intéréssant de roulement 
