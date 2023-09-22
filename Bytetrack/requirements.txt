@@ -158,10 +158,10 @@ ptyprocess==0.7.0
 pure-eval==0.2.2
 pycairo==1.20.1
 pycparser==2.21
-pycups==2.0.1
+#pycups==2.0.1
 pydantic==1.10.7
 Pygments==2.14.0
-PyGObject==3.42.1
+#PyGObject==3.42.1
 PyJWT==2.3.0
 pymacaroons==0.13.0
 PyNaCl==1.5.0
@@ -176,7 +176,7 @@ pytz==2022.1
 pyxdg==0.27
 #PyYAML==5.4.1
 pyzmq==25.0.2
-reportlab==3.6.8
+#reportlab==3.6.8
 requests==2.28.2
 rfc3339-validator==0.1.4
 rfc3986-validator==0.1.1
@@ -211,3 +211,7 @@ typing_extensions==4.5.0
 tzdata==2023.3
 #ubuntu-advantage-tools==8001
 #ubuntu-drivers-common==0.0.0
+loguru
+cython
+pycocotools==2.0.7
+lap

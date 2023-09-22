@@ -257,7 +257,7 @@ def imageflow_demo(predictor, vis_folder, current_time, args):
     print("***",args.path)
     tracking_result={}
     DBN_result={}
-    while True :# and frame_id<2000
+    while True : #and frame_id<20:
         dct={}
         dct_dbn={}
         if frame_id % 20 == 0:
@@ -323,7 +323,7 @@ def imageflow_demo(predictor, vis_folder, current_time, args):
 
     if args.save_result:
         vid_writer.release()
-        with open(args.path.split('.mp4')[0]+'tracking_resut.json', 'w') as outfile:
+        with open(args.path.split('.mp4')[0]+'tracking_result.json', 'w') as outfile:
             json.dump(tracking_result, outfile)
             print("the results txt files are printed in", outfile)
         def convert_to_json(o):
@@ -332,7 +332,8 @@ def imageflow_demo(predictor, vis_folder, current_time, args):
             except:
                 o=str(o)
             return o
-        with open(args.path.split('.mp4')[0]+'DBN_resut.json', 'w') as outfile:
+        with open(args.path.split('.mp4')[0]+'DBN_result.json', 'w') as outfile:
+            
             json.dump(DBN_result, outfile, default=lambda o: convert_to_json(o), indent=1)
             print("the results txt files are printed in", outfile)
         print("all finished well")

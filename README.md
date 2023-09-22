@@ -34,7 +34,7 @@ To get comparison between all the trackers and our proposed method (******maybe 
 
 
 The dataset is available at : **** 
-
+to find deleted file on zfs make cd .zfs/snapshot then ls -a 
 
 
 
