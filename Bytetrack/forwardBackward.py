@@ -11,10 +11,11 @@ import copy
 import cv2
 POWERFULNESS=2
 Home_folder=  "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
-#en supposant que les observations sont independantes la normalisation à 1 des alpha et beta est acceptable 
 #la solution qui suivra sera de choisir l'identité la plus acceptée au niveau de L et de l'affecté à la localisation identifié dans le tracking 
+################proposition d'amélioration##################################
+#à ajouter: donner du poid aux éléments qui ont les même track_id ???? 
 
-
+######################################################################
 def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result.json", video_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314.mp4"):
     confidence_threshold = 0.3#1  #### sophie mod 
     hungarian= False
@@ -29,6 +30,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
     def softmax(x):
         #return x/sum(x)
         #return np.exp(x)/sum(np.exp(x))
+
         return np.power(x,confidence_on_hmm_choice) / np.sum(np.power(x,confidence_on_hmm_choice), axis=0)
         
     def hungarian_choice(matrice,  value_of_confidence_on_track=1):
@@ -103,7 +105,10 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                         beta[V[t]][j] = (tmp_beta * b["t="+str(V[t + 1])]).dot(a["t="+str(V[t+1])][j, :])
                 if beta[V[t]].sum()!=0:
                     beta[V[t]]=softmax(beta[V[t]])
+                    
                 ##print("*****",V[t], beta[V[t]])
+                
+                
 
         return beta
     
@@ -114,13 +119,19 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
         alpha = forward(V,a,b,initial_distribution,T)
         L={}
         for t in V[1:]:
-            #if t==400:
             #  #print(alpha[t],"***",beta[t])
-            L["t="+str(t)]=alpha[t]*beta[t] + alpha[t] + beta[t] #alpha[t]*beta[t]
+            L["t="+str(t)]=alpha[t]*beta[t] #+ alpha[t] + beta[t] #alpha[t]*beta[t]
             if L["t="+str(t)].sum()!=0:
                 L["t="+str(t)]=L["t="+str(t)]/L["t="+str(t)].sum()
-                L["t="+str(t)] = L["t="+str(t)].tolist()
-
+            L["t="+str(t)] = L["t="+str(t)].tolist()
+            """if t>=12080 and t<=12098:
+                    print(t, a["t="+str(t)].shape)
+                    infos=data[str(t)]["current"]
+                    a_tmp = a["t="+str(t)]
+                    L_tmp = L["t="+str(t)]
+                    beta_tmp = beta[t]
+                    alpha_tmp= alpha[t]
+                    print("ok")"""
         ##print("final t", t)
             
         return L,beta,alpha
@@ -147,17 +158,17 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
     b={}
     for identity in identities:
         b[str(identity)]={}
-    initial_distribution = np.array([1/len(data["0"]["current"]) for i in data["0"]["current"] ])
+    initial_distribution = np.array([1/len(data["1"]["current"]) for i in data["1"]["current"] ])
     for frame_id, value in data.items():
         
         if  frame_id!="0" and int(frame_id)<max_frame: #int(frame)>100: #(frame!="0" and int(frame)%25==0) or
             a["t="+frame_id]=np.array(value["matrice"]) ######### without the hungarian choice hungarian_choice(np.array(value["matrice"]))
 
-            if 360<int(frame_id)<430:
+            """if 360<int(frame_id)<430:
                 print(a["t="+frame_id].shape)
-            
+            """
             for identity in identities:
-                b[str(identity)]["t="+frame_id]=np.array([1 for i in value["matrice"][1] ])
+                b[str(identity)]["t="+frame_id]=np.array([1 for i in value["matrice"][0] ])
 
             for key in list(value["observation"]):
                 b[str(key)]["t="+frame_id]=np.array(value["observation"][key] )
@@ -178,30 +189,29 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
     Alpha={}
 
 
-    for identity in identities_list [:15]:
-        if True:#identity=='4809.0':
-            L[identity], Beta[identity], Alpha[identity]= forward_backward_L(V=V,  a=a, b=b[str(identity)], initial_distribution=initial_distribution, T=V[-1] )#"""
+    """for identity in identities_list [:15]:
+        if True: # identity=='4808.0':
+            L[identity], Beta[identity], Alpha[identity]= forward_backward_L(V=V,  a=a, b=b[str(identity)], initial_distribution=initial_distribution, T=V[-1] )#
             print(identity, "process finished")#"""
             
-
 
 
 
     ##################################Adding ATQ from the HMM #########################
     #Atq are added by considering the animal on which the confidence on an identity was greater than confidence_threshold
     
-    """with open("videos/data.json", 'w') as outfile:
+    """with open("data.json", 'w') as outfile:
         json.dump(data, outfile)
     
-    with open("videos/L.json", 'w') as outfile:
+    with open("L.json", 'w') as outfile:
         json.dump(L, outfile)
-        exit(0)
+        #exit(0)"""
         
-    with open("videos/data.json") as f:
+    with open("data.json") as f:
             data = json.load(f)  
     
-    with open("videos/L.json") as f:
-            L = json.load(f) """
+    with open("L.json") as f:
+            L = json.load(f) 
             
 
     for idx_t, t in enumerate( V[1:] ): 
@@ -215,7 +225,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                 matrice_df[identity]= L[identity]["t="+str(t)]
         matrice_df=pd.DataFrame(matrice_df)"""
 
-         
+        ###faire le hungarian et on affiche slmt si le truc depasse le seuil
         if hungarian== True:
             #######Hungarian version whICH seems to be ok   
             try:
@@ -224,6 +234,14 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                 print("xeption on this matrix")#,t,identities_list[3], L[identities_list[3]]["t="+str(t)], matrice)            
             for idx, row in enumerate(row_ind):
                 data[str(t)]["current"][idx]["atq"] = identities_list[col_ind[idx]]
+                
+            for idx, track in enumerate(data[str(t)]["current"]):
+                data[str(t)]["current"][idx]["atq"] = None
+            for idx, row in enumerate(row_ind):
+                if  L[identities_list[col_ind[idx]]]["t="+str(t)][idx]>confidence_threshold:
+                        data[str(t)]["current"][idx]["atq"] = identities_list[col_ind[idx]]
+                    
+
                 
         else:
             ##########version with the maximum one feeting 
@@ -254,8 +272,8 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
         Returns:
             _type_: _description_
         """
-        while t in  V[1:] :#in data.keys():
-            
+        
+        def check(t):
             for idx, track in enumerate(data[str(t)]["current"]):
                 if track["track_id"]==track_id :
                     if track["atq"] is not None:
@@ -267,12 +285,19 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                     elif "atq_from_future" in track.keys():
                         if track["atq_from_future"] is not None:
                             return track["atq_from_future"]
-                    return None
+            return None
+        t2 =t1=t
+        while t1 in  V[t-gap:t] :#in data.keys():
+            t= t1
+            found_atq= check(t)
+            if found_atq is not None :
+                return check
+            t= t2
+            found_atq= check(t) 
+                    #return None
             #print("ok**", t)
-            #if type=="future":
-            #    t=t+gap
-            #elif type=="past":
-            #    t=t-gap
+            t1=t1-1
+            t2=t2+1
             #else:
             #    raise NameError("Type accepted are only future and past you provided "+type)
         return None
@@ -282,9 +307,14 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
         takens=[]
         for idx, track in enumerate(current):
             takens.append(track["atq"])
-            return takens 
+            if "atq_from_previous" in track.keys():
+                takens.append(track["atq_from_previous"])
+            if "atq_from_future" in track.keys():
+                takens.append(track["atq_from_future"])
+                
+        return takens 
            
-    def smooting_from_past(data, gap=750):                
+    def smooting_from_past(data, gap=50):                
         """if atq is none get atq_previous:which is the atq of the animal having the same track_id in t-gap (it help relying on the tracker) 
         Args:
             data (_type_): _description_
@@ -292,6 +322,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
         """
         for t in V[1:] : 
             takens_atq = takens(data[str(t)]["current"])
+            
             
             for idx, track in enumerate(data[str(t)]["current"]):
                     if track["atq"] is None:
@@ -302,16 +333,15 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                             #track_previous = get_track_from_id_and_time(track_id,t-1)
                             """if track_id==13:
                                 atq_previous = get_track_from_id_and_time(track_id,t-1,gap=gap, type="past")
-                            
                                 print(t, atq_previous)
-                                exit(0)"""
+                                exit(0)
+                            """
                             atq_previous= None
-                            atq_previous = get_track_from_id_and_time(track_id,t-gap,gap=gap, type="past")
+                            atq_previous = get_track_from_id_and_time(track_id,t-1,gap=gap, type="past")
                             atq_previous =atq_previous if atq_previous not in takens_atq else None
                             if  atq_previous!=None:
                                 data[str(t)]["current"][idx]["atq_from_previous"]= atq_previous #add check if atq not taken
                                 takens_atq.append(atq_previous)
-
                             else:
                                 data[str(t)]["current"][idx]["atq_from_previous"]=None
                                     
@@ -321,18 +351,19 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                     #    data[str(t)]["current"][idx]["atq_from_previous"]= track["atq"]
 
 
-    def smooting_from_future(data, gap=750):
+    def smooting_from_future(data, gap=50):
         for t in reversed(V[1:]) : 
             takens_atq = takens(data[str(t)]["current"])
+            
+                
             for idx, track in enumerate(data[str(t)]["current"]):
                     if track["atq"] is None:
                         track_id=track["track_id"]
                         data[str(t)]["current"][idx]["atq_from_future"]= None
                         #track["atq_from_future"] =  None
                         if t>1+gap and V[-1]-t>gap: #"if not we can't do t-gap
-
                             atq_future= None
-                            atq_future  = get_track_from_id_and_time(track_id,t+gap,gap=gap, type="future")
+                            atq_future  = get_track_from_id_and_time(track_id,t+1,gap=gap, type="future")
                             if data[str(t)]["current"][idx]["atq_from_previous"]!=None:
                                 takens_atq.append(data[str(t)]["current"][idx]["atq_from_previous"])
                             
@@ -350,8 +381,8 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                     #    data[str(t)]["current"][idx]["atq_from_previous"]= track["atq"]
 
 
-    #smooting_from_past(data,gap=100) # 1000)#
-    #smooting_from_future(data,gap=100)#   4à secondes de gap
+    #smooting_from_past(data,gap=10) # 1000)#
+    # smooting_from_future(data,gap=10)#   4à secondes de gap
 
     
 
@@ -402,29 +433,35 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
     ret_val, frame = cap.read()
     frame_id=1
     tracking_result={}
-    while ret_val and frame_id!=V[-1]: 
+    while ret_val and frame_id<V[-1]: 
         dct={}
         ret_val, frame = cap.read()
+        #add feeder and drinker center 
         frame = cv2.circle(frame, center_coordinates, radius, color, thickness)
+        frame = cv2.circle(frame, (131,102), radius, color, thickness)
+        #addd
         if str(frame_id) in data.keys():
             if (frame_id!="0") :
                 cv2.putText(frame, str(frame_id),(90+580, 20),0, 5e-3 * 200, (0,255,0),2)
                 for idx,track in enumerate(data[str(frame_id)]["current"]):
                     track_id=track["track_id"] 
                     tlwh = track["location"]
-                    ##print(track)
+                    #print(track)
                     atq= track["atq"] 
-                    tid= str(track_id)+", atq:"+str(atq)
-                    if (atq is None) and ("atq_from_previous" in track.keys()) :
+                    tid= str(track_id)   
+                    if (atq is not None):
+                        tid=tid+", atq:"+str(atq)+"("+str(round(L[atq]["t="+str(frame_id)][idx], 2))+")"
+                    if  ("atq_from_previous" in track.keys() or "atq_from_future" in track.keys()  ) :
                         if track["atq_from_previous"] is not None:
                             #print("previous", track["atq_from_previous"] )
                             atq= track["atq_from_previous"]#+'fp'
-                        elif track["atq_from_future"] is not None:
+                            tid=tid+", atq:"+str(atq)+"("+str(round(L[track["atq_from_previous"]]["t="+str(frame_id)][idx], 2))+")"
+                        """elif track["atq_from_future"] is not None:
                             #print("future",track["atq_from_future"] )
-                            atq= track["atq_from_future"]#+'ff'"""
-                            
-                    if (atq is not None):
-                        tid=tid+"("+str(round(L[atq]["t="+str(frame_id)][idx], 2))+")"
+                            atq= track["atq_from_future"]#+'ff'#"""
+                            #tid=tid+", atq:"+str(atq)+"("+str(round(L[track["atq_from_future"]]["t="+str(frame_id)][idx], 2))+")"""
+                    #
+                    
                     ##print(tid)
                     if atq is not None:
                         dct[atq]=(int(tlwh[0]), int(tlwh[1]), int(tlwh[2]), int(tlwh[3]) )
@@ -440,6 +477,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
     with open(json_save_path, 'w') as outfile:
         json.dump(tracking_result, outfile)
     vid_writer.release()
+    print("ok done")
     #plutôt la surface d'intersection des rectangles plutôt que la distance eucledienne 
 
 
