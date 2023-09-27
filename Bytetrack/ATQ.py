@@ -16,13 +16,15 @@ home_folder= "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
 
 
 
-def adding_atq(nbr_visit, output_file, labels_file=home_folder+"/videos/labels_with_atq.json", feeder=False, 
+def adding_atq(nbr_visit, output_file, feeder=False, 
                video_debut=dt.datetime(2020, 5, 12, 9, 0,0),
-                video_fin= dt.datetime(2020, 5, 12, 9, 0,1), 
-                 track_file=home_folder+"/videos/GR77_20200512_111314tracking_result.json",
-                water_file=home_folder+"/videos/eau_parc6.xlsx",
+                video_fin= dt.datetime(2020, 5, 12, 9, 10,0), 
+                track_file=home_folder+"/videos/GR77_20200512_111314tracking_result.json",
                 dbn_file= home_folder+"/videos/GR77_20200512_111314DBN_result.json",
-                feeder_file=home_folder+"/videos/donnees_insentec_lot77_parc6.xlsx"
+                
+                labels_file=home_folder+"/videos/labels_with_atq.json",
+                feeder_file=home_folder+"/videos/donnees_insentec_lot77_parc6.xlsx",
+                water_file=home_folder+"/videos/eau_parc6.xlsx",
                ):
    
 
@@ -93,17 +95,24 @@ def adding_atq(nbr_visit, output_file, labels_file=home_folder+"/videos/labels_w
     
     if feeder==True:
         water_visits=pd.read_excel(water_file)
-        """feeder_visits=pd.read_excel(feeder_file)
-        feeder_visits["debut"] = feeder_visits["Date_fin"].combine(feeder_visits["Tfin"], lambda d, t: pd.datetime.combine(d, t))
-        feeder_visits['debut'] = [feeder_visits['debut'][idx] - timedelta(seconds=feeder_visits['Duree_s'][idx]) for idx in feeder_visits.index ]
-        """
+        feeder_visits=pd.read_excel(feeder_file)
+        #feeder_visits["debut"] = feeder_visits["Date_fin"].combine(feeder_visits["Tfin"], lambda d, t: pd.datetime.combine(d, t))
+        #feeder_visits['debut'] = [feeder_visits['debut'][idx] - timedelta(seconds=feeder_visits['Duree_s'][idx]) for idx in feeder_visits.index ]
+        
+        feeder_visits['fin'] =  pd.to_datetime(pd.to_datetime (feeder_visits['Date_fin']  ).dt.strftime('%Y-%m-%d') + " "+ pd.to_datetime (feeder_visits['Tfin'],  format='%H:%M:%S' ).dt.strftime('%H:%M:%S') )
+        feeder_visits["debut"] = [pd.to_datetime(feeder_visits['fin'])[idx] - timedelta(seconds=int(feeder_visits['Duree_s'][idx]))   for idx in feeder_visits.index ]
+        feeder_visits["animal_num"]= feeder_visits ["Animal"]
+        
+        # feeder_visits['debut']  = pd.to_datetime (feeder_data['Tdebut'],  format='%H:%M:%S'  ).dt.strftime('%H:%M')
+                
         water_center=[625,70]
         feeder_center=[131, 102]
 
         #on selectionne les visites qui sont sensées être dans la vidéo
         
         water_visits = water_visits.loc[(water_visits["debut"]>video_debut ) & (water_visits["debut"]<video_fin) ]
-        #feeder_visits = feeder_visits.loc[(feeder_visits["debut"]>video_debut) & (feeder_visits["debut"]<dt.datetime(2020, 5, 12, 9, 9,59)) ]
+        feeder_visits = feeder_visits.loc[(feeder_visits["debut"]>video_debut) & (feeder_visits["debut"]<video_fin) ]
+        feeder_visits.to_csv("test.csv")
         #print(len(water_visits), len(feeder_visits))
         
         
@@ -112,7 +121,7 @@ def adding_atq(nbr_visit, output_file, labels_file=home_folder+"/videos/labels_w
         def add_observations(visits, feeder_center=[625,70]):
             nbr_of_visits=0
             for idx, visit in visits.iterrows(): 
-                atq = visit["animal_num"]
+                atq = float(visit["animal_num"])
                 debut = visit['debut']
                 fin = visit['fin']
                 #on retrouve la frame de chaque visite 
@@ -120,8 +129,8 @@ def adding_atq(nbr_visit, output_file, labels_file=home_folder+"/videos/labels_w
                 #d'identités quand deux animaux viennent bagarer à la mangeoire
                 
                 # je rajoute +50 frame de marge entre les debuts et fin de visites 
-                frame_id_debut = int((debut-video_debut).total_seconds()*24.63666666666)+25 # +2 secondes
-                frame_id_fin =  min(frame_id_debut+2, int((fin-video_debut).total_seconds()*24.63666666666)-25 )#-2 secondes 
+                frame_id_debut = int((debut-video_debut).total_seconds()*24.63666666666 +100) # +2 secondes
+                frame_id_fin =  min(frame_id_debut+2, int((fin-video_debut).total_seconds()*24.63666666666 +100) )#-2 secondes 
                 frame_id=frame_id_debut+1
                 flag=False
                 while frame_id<frame_id_fin: 
@@ -130,12 +139,12 @@ def adding_atq(nbr_visit, output_file, labels_file=home_folder+"/videos/labels_w
                         frame=tracks[str(frame_id)]
                         max_d = 0
                         id_track_min =None          
-                        for track_id, track in frame.items(): 
+                        """for track_id, track in frame.items(): 
                             # on calcule l'iou de chaque animal par rapport à la mangeoire et on vérifie qu'on a au moins un animal à la mangeoire
-                            if iou(track)>max_d:
+                            if iou(track, boxB=[feeder_center[0]-45, feeder_center[0]-70, 90, 115+20])>max_d:  #(x,y,w,h)
                                 id_track_min=track_id
-                                max_d =iou(track)
-                        if max_d >0 :#and max_d_x<= 620:
+                                max_d =iou(track)"""
+                        if max_d >=0 :
                             observation=[]
                             for track in dbn_infos[str(frame_id)]["current"]:
                                 ### on  pourrait faire la gaussienne ici
@@ -165,7 +174,7 @@ def adding_atq(nbr_visit, output_file, labels_file=home_folder+"/videos/labels_w
                 if flag==True:
                     nbr_of_visits+=1
             print("nbr of rewarded visits",nbr_of_visits)
-        #add_observations(feeder_visits, feeder_center)
+        add_observations(feeder_visits, feeder_center)
         add_observations(water_visits, water_center)
 
     #####################################################################################################
