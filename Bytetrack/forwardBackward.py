@@ -40,6 +40,17 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
         return matrice
 
     def forward(V=np.array([0,1]), a={"t=1":np.array([[0.5,0.5]]) }, b={"t=0":np.array([0.5]),"t=1":np.array([0.5,0.5])}, initial_distribution=np.array([0.5]), T=1 ): #V=np.array([0,1]), a={"t=1":np.array([[0.5,0.5],[0.5,0.5]]) }, b={"t=0":np.array([0.5,0.5]),"t=1":np.array([0.5,0.5])}, initial_distribution=np.array([0.5,0.5])):
+        """
+
+        Args:
+            V (_type_, optional): _description_. Defaults to np.array([0,1]), a={"t=1":np.array([[0.5,0.5]]) }, b={"t=0":np.array([0.5]),"t=1":np.array([0.5,0.5])}, initial_distribution=np.array([0.5]), T=1 ):#V=np.array([0,1]).
+            a (dict, optional): _description_. Defaults to {"t=1":np.array([[0.5,0.5],[0.5,0.5]]) }.
+            b (dict, optional): _description_. Defaults to {"t=0":np.array([0.5,0.5]),"t=1":np.array([0.5,0.5])}.
+            initial_distribution (_type_, optional): _description_. Defaults to np.array([0.5,0.5]).
+
+        Returns:
+            _type_: _description_
+        """
         alpha = {}
         alpha[V[1]] = initial_distribution * b["t="+str(V[1])]
         for t in range(2, V.shape[0]):
@@ -59,11 +70,9 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                 alpha[V[t]]=np.zeros(a["t="+str(V[t])].shape[1])
                 for j in range(a["t="+str(V[t])].shape[1]):
                     alpha[V[t]][j] = tmp_alpha.dot(a["t="+str(V[t])][:, j]) *(b["t="+str(V[t])][j])
-                final_alpha_t=alpha[V[t]]
                 
-            ##print("*****",V[t], alpha[V[t]])
             if alpha[V[t]].sum()!=0:
-                alpha[V[t]]=softmax(alpha[V[t]])
+                alpha[V[t]]=softmax(alpha[V[t]] )
             
         return alpha
         
@@ -120,7 +129,9 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
         L={}
         for t in V[1:]:
             #  #print(alpha[t],"***",beta[t])
-            L["t="+str(t)]=alpha[t]*beta[t] #+ alpha[t] + beta[t] #alpha[t]*beta[t]
+            alpha_tmp =alpha[t]
+            beta_tmp = beta[t]
+            L["t="+str(t)]=alpha[t]#*beta[t] + alpha[t] + beta[t] #alpha[t]*beta[t]
             if L["t="+str(t)].sum()!=0:
                 L["t="+str(t)]=L["t="+str(t)]/L["t="+str(t)].sum()
             L["t="+str(t)] = L["t="+str(t)].tolist()
@@ -189,7 +200,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
     Alpha={}
 
 
-    """for identity in identities_list [:15]:
+    for identity in identities_list [:15]:
         if True: # identity=='4808.0':
             L[identity], Beta[identity], Alpha[identity]= forward_backward_L(V=V,  a=a, b=b[str(identity)], initial_distribution=initial_distribution, T=V[-1] )#
             print(identity, "process finished")#"""
@@ -200,7 +211,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
     ##################################Adding ATQ from the HMM #########################
     #Atq are added by considering the animal on which the confidence on an identity was greater than confidence_threshold
     
-    """with open("data.json", 'w') as outfile:
+    with open("data.json", 'w') as outfile:
         json.dump(data, outfile)
     
     with open("L.json", 'w') as outfile:
@@ -213,7 +224,36 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
     with open("L.json") as f:
             L = json.load(f) 
             
+    class NumpyEncoder(json.JSONEncoder):
+        def default(self, obj):
+            if isinstance(obj, np.integer):
+                return int(obj)
+            return super(NumpyEncoder, self).default(obj)
 
+    def get_proba_of_track_id(L,data):
+        proba={}
+        for identity in identities_list:
+            proba[identity] ={i:[] for i in range(1,16,1)}
+        proba["frame_id"]=[]
+        for idx_t, t in enumerate( V[1:] ):
+            proba['frame_id'].append(t)
+            all_known_track = [i for i in range(1,16,1) ]
+            for identity in identities_list:
+                for idx, track in enumerate(data[str(t)]["current"]):
+                    proba[identity][track["track_id"]].append(int(L[identity]["t="+str(t)][idx] ))
+                    if track["track_id"] in all_known_track:
+                        all_known_track.remove(track["track_id"])
+                if all_known_track!=[]:
+                    for remaining_track in all_known_track:
+                        proba[identity][remaining_track].append(None)
+        with open("proba.json", 'w') as outfile:
+            json.dump(proba, outfile, cls=NumpyEncoder)
+        print("proba dumped")
+        return proba
+    
+    get_proba_of_track_id(L,data)
+    
+    
     for idx_t, t in enumerate( V[1:] ): 
         matrice=np.zeros((len(L[identities_list[0]]["t="+str(t)]),len(identities_list)))
         for idx,identity in enumerate(identities_list[:15]):
@@ -401,10 +441,6 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
     fps = cap.get(cv2.CAP_PROP_FPS)
     save_path=  video_path.split(".mp4")[0]+"_with_atq"+str(nbr_visit)+".mp4"
     vid_writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (int(width), int(height)))     
-
-
-
-
     # Center coordinates
     center_coordinates = (625, 70)
     
@@ -438,7 +474,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
         ret_val, frame = cap.read()
         #add feeder and drinker center 
         frame = cv2.circle(frame, center_coordinates, radius, color, thickness)
-        frame = cv2.circle(frame, (131,102), radius, color, thickness)
+        frame = cv2.circle(frame, (90,102), radius, color, thickness)
         #addd
         if str(frame_id) in data.keys():
             if (frame_id!="0") :

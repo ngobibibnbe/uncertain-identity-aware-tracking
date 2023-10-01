@@ -12,7 +12,7 @@ from datetime import timedelta
 
 ###########reading important files and setting the max number of frame ##########
 home_folder= "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
-
+is_it_random = False
 
 
 
@@ -25,7 +25,7 @@ def adding_atq(nbr_visit, output_file, feeder=False,
                 labels_file=home_folder+"/videos/labels_with_atq.json",
                 feeder_file=home_folder+"/videos/donnees_insentec_lot77_parc6.xlsx",
                 water_file=home_folder+"/videos/eau_parc6.xlsx",
-               ):
+               is_it_random = False):
    
 
     with open(track_file) as f:
@@ -106,7 +106,7 @@ def adding_atq(nbr_visit, output_file, feeder=False,
         # feeder_visits['debut']  = pd.to_datetime (feeder_data['Tdebut'],  format='%H:%M:%S'  ).dt.strftime('%H:%M')
                 
         water_center=[625,70]
-        feeder_center=[131, 102]
+        feeder_center=[90, 102]
 
         #on selectionne les visites qui sont sensées être dans la vidéo
         
@@ -130,7 +130,7 @@ def adding_atq(nbr_visit, output_file, feeder=False,
                 
                 # je rajoute +50 frame de marge entre les debuts et fin de visites 
                 frame_id_debut = int((debut-video_debut).total_seconds()*24.63666666666 +100) # +2 secondes
-                frame_id_fin =  min(frame_id_debut+2, int((fin-video_debut).total_seconds()*24.63666666666 +100) )#-2 secondes 
+                frame_id_fin =  min(frame_id_debut+2, int((fin-video_debut).total_seconds()*24.63666666666 - 100) )#-2 secondes 
                 frame_id=frame_id_debut+1
                 flag=False
                 while frame_id<frame_id_fin: 
@@ -165,6 +165,9 @@ def adding_atq(nbr_visit, output_file, feeder=False,
                             observation = observation/sum(observation)
                             if max(observation)>=0.0:
                                 dbn_infos[str(frame_id)]["observation"][atq]=observation
+                                if is_it_random ==True: 
+                                    if random.choice( [False, False, False, True] ) ==True:
+                                        dbn_infos[str(frame_id)]["observation"][atq]=np.random(loc=0, scale=1, size=(len(observation))).tolist() #***random of lengt between 0 and 1 
                                 #dbn_infos[str(frame_id)]["observed"]=atq
                                 if flag==False:
                                     flag=True
