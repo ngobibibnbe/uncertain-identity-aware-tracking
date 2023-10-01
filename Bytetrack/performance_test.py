@@ -157,7 +157,6 @@ label_track = read_data(label_file)
 import pandas as pd 
 from ATQ import adding_atq
 from forwardBackward import process_forwad_backward
-hmm_result_with_visits=pd.DataFrame(columns=["nbr of visits", "accuracy", "recall", "f1"])
 
 
 import os 
@@ -174,11 +173,16 @@ def score_for_mot_trackers():
 
 
 def score_for_various_artificial_observations():
-    for i in range (2, len(label_track.keys()), 100): #[10, 100]:#  [18]: #
+    from Bytetrack_re_id import produce_re_id_results 
+    from Bytetrack_re_id import put_results_on_video
+    hmm_result_with_visits=pd.DataFrame(columns=["nbr of visits", "accuracy", "recall", "f1"])
+    re_id_result_with_visits=pd.DataFrame(columns=["nbr of visits", "accuracy", "recall", "f1"])
+
+    for i in [192]:# range (2, 200 , 10): #[10, 100]:#  [18]: # len(label_track.keys())
         observation_file="videos/GR77_20200512_111314DBN_result_with_observations_visits_"+str(i)+".json"
         print(i, "ok")
         
-        adding_atq(i, output_file=observation_file)
+        adding_atq(i, output_file=observation_file, feeder=False, is_it_random =True, video_debut=dt.datetime(2020, 5, 12, 9, 0,0), video_fin= dt.datetime(2020, 5, 12, 9, 10,0) )
         process_forwad_backward(observation_file,nbr_visit=i, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+str(i)+".json")
         Hmm_result_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+str(i)+".json"
 
@@ -186,11 +190,23 @@ def score_for_various_artificial_observations():
         acc, rec, f1= precise_accuracy_track(label_track, hmm_track)
         new_row= {'nbr of visits':i, 'accuracy':acc, 'recall':rec, "f1":f1}
         print(new_row)
-
         hmm_result_with_visits = pd.concat([hmm_result_with_visits, pd.DataFrame([new_row])], ignore_index=True)
         
 
-    #hmm_result_with_visits.to_csv('accuracy_over_nbr_of_visits_with_track_helping.csv')
+        ####Re_id_part of the work
+        re_id_track_result_file = "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_re_id.json"
+        tracking_result =produce_re_id_results(track_with_observation_file =observation_file , re_id_track_result_file = re_id_track_result_file )
+        re_id_track = read_data(re_id_track_result_file)
+        acc, rec, f1= precise_accuracy_track(label_track, re_id_track, basic_tracker=True)
+        new_row= {'nbr of visits':i, 'accuracy':acc, 'recall':rec, "f1":f1}
+        print(new_row)
+        re_id_result_with_visits = pd.concat([re_id_result_with_visits, pd.DataFrame([new_row])], ignore_index=True)
+        
+        hmm_result_with_visits.to_csv('accuracy_over_nbr_of_visits_with_track_helping.csv')
+        re_id_result_with_visits.to_csv('accuracy_Re_id_over_nbr_of_visits_with_track_helping.csv')
+        
+        put_results_on_video ( tracking_result , save_path="video/re_id_192.mp4" , video_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314.mp4", track_with_observation_file=track_with_observation_file)
+
 
 
 def score_for_visit_at_feeder():
@@ -198,6 +214,7 @@ def score_for_visit_at_feeder():
     adding_atq(1, output_file=observation_file, feeder=True, video_debut=dt.datetime(2020, 5, 12, 9, 0,0), video_fin= dt.datetime(2020, 5, 12, 9, 10,0), )
     process_forwad_backward(observation_file,nbr_visit=1, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json")
     print("ok")
+    
     Hmm_result_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json"
     hmm_track = read_data(Hmm_result_file)
     acc, rec, f1= precise_accuracy_track(label_track, hmm_track, basic_tracker=False)
@@ -208,6 +225,24 @@ def score_for_visit_at_feeder():
     #hmm_result_with_visits.to_csv('accuracy_over_nbr_of_visits_with_track_helping.csv')
     
 #process_forwad_backward()
+
+def score_for_re_id_visit_at_feeder():
+    from Bytetrack_re_id import produce_re_id_results 
+    """observation_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations_feeder.json"
+    adding_atq(1, output_file=observation_file, feeder=True, video_debut=dt.datetime(2020, 5, 12, 9, 0,0), video_fin= dt.datetime(2020, 5, 12, 9, 10,0), )
+    process_forwad_backward(observation_file,nbr_visit=1, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json")
+    print("ok")"""
+    re_id_track_result_file = "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_re_id.json"
+    track_with_observation_file= "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations_feeder.json"
+    tracking_result =produce_re_id_results(track_with_observation_file, re_id_track_result_file)
+    re_id_track = read_data(re_id_track_result_file)
+    acc, rec, f1= precise_accuracy_track(label_track, re_id_track, basic_tracker=True)
+    #acc, rec, f1= precise_accuracy_track(label_track, hmm_track, basic_tracker=True)
+    new_row= {'nbr of visits':"feeder", 'accuracy':acc, 'recall':rec, "f1":f1}
+    print(new_row)
+
+#process_forwad_backward()
+
 
 
 import argparse
@@ -222,3 +257,5 @@ if __name__=="__main__":
         score_for_various_artificial_observations()
     if args.mode == "tracker_test":
         score_for_mot_trackers()
+    if args.mode == "re_id":
+        score_for_re_id_visit_at_feeder()
