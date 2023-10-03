@@ -9,13 +9,14 @@ import subprocess
 file_feeder= "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/donnees_insentec_lot77_parc6.xlsx"
 file_drinker = "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/eau_parc6.xlsx"
 feeder_data = pd.read_excel(file_feeder)
+#feeder_data.to_csv('xxx.csv')
 drinker_data = pd.read_excel(file_drinker)
-
+"""
 
 drinker_data['rounded_Datetime'] = drinker_data['debut'].apply(lambda x: x - pd.to_timedelta(x.minute % 10, unit='m'))
 drinker_data['rounded_Datetime']  = pd.to_datetime (drinker_data['rounded_Datetime']  ).dt.strftime('%Y-%m-%d %H:%M')
 #print(drinker_data.head())
-"""
+
 feeder_data['Date_fin']  = pd.to_datetime (feeder_data['Date_fin']  ).dt.strftime('%Y-%m-%d')
 feeder_data['Tdebut']  = pd.to_datetime (feeder_data['Tdebut'],  format='%H:%M:%S'  ).dt.strftime('%H:%M')
 feeder_data['Datetime'] =  pd.to_datetime(feeder_data['Date_fin'] + " "+ feeder_data['Tdebut'] )
@@ -35,9 +36,9 @@ grouped_counts_feeder['rounded_Datetime'] = pd.to_datetime(grouped_counts_feeder
 #selected_rows = grouped_counts_drinker[(grouped_counts_drinker['rounded_Datetime'] == specific_datetime) ]
 print(grouped_counts_drinker.head())
 print(grouped_counts_feeder.head(4))
-"""
-#download and past it in this folder 
 
+#download and past it in this folder 
+exit(0)"""
 
 ################## tracking: find out the code doing detection on videos 
 
@@ -46,12 +47,16 @@ print(grouped_counts_feeder.head(4))
 import sys
 bytetrack_directory = "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
 sys.path.append(bytetrack_directory)
-#video_path= "/home/sophie/uncertain-identity-aware-tracking/batch_identity_aware_tracking/111320-video.mp4"
-video_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314.mp4"
+video_path= "/home/sophie/uncertain-identity-aware-tracking/batch_identity_aware_tracking/115612-video.mp4"
+video_debut=dt.datetime(2020, 5, 18, 8, 10,0) #to change 
+video_fin = dt.datetime(2020, 5, 18, 8, 19,59) #to change 
+
+
+#video_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314.mp4"
 command = "python tools/demo_track_m.py video -f exps/example/mot/yolox_s_mix_det.py -c /home/sophie/uncertain-identity-aware-tracking/Bytetrack/models/yoloX_s_pig_trained_model_400_images.tar --path "+ video_path+"  --fuse --save_result --device gpu --fps 25 --conf 0.2 --track_thres 0.2  --match_thresh 1.0 --nms 0.45 --tsize 416"
 print(command)
 # Run the command
-result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=bytetrack_directory)
+"""result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=bytetrack_directory)
 # Check if the command was successful
 if result.returncode == 0:
     print("Command executed successfully.")
@@ -61,7 +66,7 @@ else:
     print("Command failed with error:")
     print(result.stderr)
     
-    
+"""
 ############pass video start and end as parameter to the extract atq part of the code 
 new_directory = "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
 import sys
@@ -72,10 +77,8 @@ from forwardBackward import process_forwad_backward
 track_file=video_path.split('.mp4')[0]+'tracking_result.json'  ####
 dbn_file=video_path.split('.mp4')[0]+'DBN_result.json'
 observation_file=video_path.split('.mp4')[0]+"_result_with_observations_feeder.json"
-video_debut=dt.datetime(2020, 5, 12, 9, 0,0) #to change 
-video_fin = dt.datetime(2020, 5, 12, 9, 9,59) #to change 
 
-adding_atq(1, output_file=observation_file, feeder=True, video_debut=video_debut,video_fin= video_fin, track_file=track_file, dbn_file=dbn_file)
+#adding_atq(1, output_file=observation_file, feeder=True, video_debut=video_debut,video_fin= video_fin, track_file=track_file, dbn_file=dbn_file)
 
 ####ajouter tracking avec le HMM
 HMM_result_file= video_path.split('.mp4')[0]+"_with_atq_tracking_with_HMM_result_feeder.json"

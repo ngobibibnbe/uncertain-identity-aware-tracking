@@ -205,13 +205,13 @@ def score_for_various_artificial_observations():
         hmm_result_with_visits.to_csv('accuracy_over_nbr_of_visits_with_track_helping.csv')
         re_id_result_with_visits.to_csv('accuracy_Re_id_over_nbr_of_visits_with_track_helping.csv')
         
-        put_results_on_video ( tracking_result , save_path="video/re_id_192.mp4" , video_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314.mp4", track_with_observation_file=track_with_observation_file)
+        #put_results_on_video ( tracking_result , save_path="video/re_id_192.mp4" , video_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314.mp4", track_with_observation_file=track_with_observation_file)
 
 
 
 def score_for_visit_at_feeder():
     observation_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations_feeder.json"
-    adding_atq(1, output_file=observation_file, feeder=True, video_debut=dt.datetime(2020, 5, 12, 9, 0,0), video_fin= dt.datetime(2020, 5, 12, 9, 10,0), )
+    #adding_atq(1, output_file=observation_file, feeder=True, video_debut=dt.datetime(2020, 5, 12, 9, 0,0), video_fin= dt.datetime(2020, 5, 12, 9, 10,0), )
     process_forwad_backward(observation_file,nbr_visit=1, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json")
     print("ok")
     
