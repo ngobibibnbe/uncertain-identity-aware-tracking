@@ -100,7 +100,7 @@ def put_results_on_video(track, video_path, save_path, track_with_observation_fi
                 vid_writer.write(frame)
         #print("\n", "\n")
         frame_id=frame_id+1
-        print("a frame done")
+        #print("a frame done")
     vid_writer.release()
     print("video done")
     #plutôt la surface d'intersection des rectangles plutôt que la distance eucledienne 
@@ -149,8 +149,10 @@ def iou (boxA,boxB):
     iou = interArea / float(boxAArea + boxBArea - interArea)
     return iou  #np.linalg.norm(np.array([float(track[0]), float(track[1])+float(track[3])/2])-np.array([600,17.5]))
 
-label_file= "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/labels_without_atq.json"
+"""label_file= "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/labels_without_atq.json"
 label = read_data(label_file)
+#put_results_on_video ( label , save_path="label_video.mp4" , video_path=video_path, track_with_observation_file=track_with_observation_file)
+"""
 
 #tracking_result =produce_re_id_results(track_with_observation_file, re_id_track_result_file)
-put_results_on_video ( label , save_path="label_video.mp4" , video_path=video_path, track_with_observation_file=track_with_observation_file)
+#put_results_on_video ( tracking_result , save_path="videos/re_id_feeder_video.mp4" , video_path=video_path, track_with_observation_file=track_with_observation_file)
