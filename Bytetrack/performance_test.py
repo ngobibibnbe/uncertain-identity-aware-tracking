@@ -83,10 +83,14 @@ def precise_accuracy_track(label_track, model_track, basic_tracker=False):
     
     def match_track_and_atq(label_track, model_track):
             matching={}
+            label_track_only_concerned = {}
             for frame_id in label_track.keys():
+                label_track_only_concerned[frame_id]= {}
                 if frame_id in model_track.keys() :
-                    
                     for label_atq, label_box in label_track[frame_id].items() : 
+                        if float(label_atq)>4800:
+                            label_track_only_concerned[frame_id][label_atq] = label_track[frame_id][label_atq]
+                            
                         if label_atq not in matching.keys():
                             max_iou=float('-inf')
                             for model_atq, model_box in model_track[frame_id].items(): 
@@ -104,17 +108,17 @@ def precise_accuracy_track(label_track, model_track, basic_tracker=False):
                 
                 if len(matching.keys())== len(label_track[frame_id].keys()):
                     break
-            return {value:key for key, value in matching.items() if float(key)>4800}
+            return label_track_only_concerned , {value:key for key, value in matching.items() if float(key)>4800}
     
     if basic_tracker==True:
-        matching = match_track_and_atq(label_track, model_track)
+        label_tracki, matching = match_track_and_atq(label_track, model_track)
         print(matching)
+    else:
+        label_tracki, _ = match_track_and_atq(label_track, model_track)
     
     for frame_id in label_track.keys() :
         if frame_id in model_track.keys() :
             nbr_frame+=1
-            if frame_id==10066:
-                print("stop")
             matching_frame={}
             for model_atq, model_box in model_track[frame_id].items() :
                     max_iou=float('-inf')
@@ -178,11 +182,11 @@ def score_for_various_artificial_observations():
     hmm_result_with_visits=pd.DataFrame(columns=["nbr of visits", "accuracy", "recall", "f1"])
     re_id_result_with_visits=pd.DataFrame(columns=["nbr of visits", "accuracy", "recall", "f1"])
 
-    for i in [192]:# range (2, 200 , 10): #[10, 100]:#  [18]: # len(label_track.keys())
+    for i in range (2, 200 , 10):# range (2, 200 , 10): #[10, 100]:#  [18]: # len(label_track.keys())
         observation_file="videos/GR77_20200512_111314DBN_result_with_observations_visits_"+str(i)+".json"
         print(i, "ok")
         
-        adding_atq(i, output_file=observation_file, feeder=False, is_it_random =True, video_debut=dt.datetime(2020, 5, 12, 9, 0,0), video_fin= dt.datetime(2020, 5, 12, 9, 10,0) )
+        """adding_atq(i, output_file=observation_file, feeder=False, is_it_random =True, video_debut=dt.datetime(2020, 5, 12, 9, 0,0), video_fin= dt.datetime(2020, 5, 12, 9, 10,0) )
         process_forwad_backward(observation_file,nbr_visit=i, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+str(i)+".json")
         Hmm_result_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+str(i)+".json"
 
@@ -191,7 +195,7 @@ def score_for_various_artificial_observations():
         new_row= {'nbr of visits':i, 'accuracy':acc, 'recall':rec, "f1":f1}
         print(new_row)
         hmm_result_with_visits = pd.concat([hmm_result_with_visits, pd.DataFrame([new_row])], ignore_index=True)
-        
+        """
 
         ####Re_id_part of the work
         re_id_track_result_file = "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_re_id.json"
