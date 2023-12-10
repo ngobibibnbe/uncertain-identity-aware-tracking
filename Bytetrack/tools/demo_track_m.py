@@ -243,7 +243,7 @@ def imageflow_demo(predictor, vis_folder, current_time, args):
     save_folder = osp.join(vis_folder, timestamp)
     os.makedirs(save_folder, exist_ok=True)
     if args.demo == "video":
-        save_path = osp.join(save_folder, args.path.split("/")[-1])
+        save_path = args.path.split(".")[0]+"_tracking.mp4" #osp.join(save_folder, args.path.split("/")[-1])
     else:
         save_path = osp.join(save_folder, "camera.mp4")
     logger.info(f"video save_path is {save_path}")
@@ -254,19 +254,24 @@ def imageflow_demo(predictor, vis_folder, current_time, args):
     timer = Timer()
     frame_id = 0
     results = []
-    print("***",args.path)
+    print("sssssssssssssssss***",args.path, fps)
     tracking_result={}
     DBN_result={}
+    args.save_result
     while True : #and frame_id<20:
         dct={}
         dct_dbn={}
         if frame_id % 20 == 0:
             logger.info('Processing frame {} ({:.2f} fps)'.format(frame_id, 1. / max(1e-5, timer.average_time)))
         ret_val, frame = cap.read()
-        if ret_val:
+        if not ret_val:
+            break
+        else: 
+            
             outputs, img_info = predictor.inference(frame, timer)
             
             if outputs[0] is not None:
+                
                 online_targets = tracker.update(outputs[0], [img_info['height'], img_info['width']], exp.test_size)
                 online_tlwhs = []
                 online_ids = []
@@ -278,24 +283,37 @@ def imageflow_demo(predictor, vis_folder, current_time, args):
                     dct_dbn["previous"]=[t.infos for t in tracker.DBN_previous_track]
                 
                 dct_dbn["current"]=[t.infos for t in tracker.DBN_current_track]
-                
+                #dbn current track doesn't have track_id only previous track has it 
                 ####
                 for t in online_targets:
                     tlwh = t.tlwh
                     tid = t.track_id
-                    dct[tid]=(int(tlwh[0]), int(tlwh[1]), int(tlwh[2]), int(tlwh[3]) )
+                    """if int(tlwh[0])==-518:
+                        print((int(tlwh[0]), int(tlwh[1])), (int(tlwh[0])+int(tlwh[2]), int(tlwh[1])+int(tlwh[3])) )
+                        exit(0)"""
+                    
                     #Draw bbox from tracker.
                     cv2.rectangle(frame, (int(tlwh[0]), int(tlwh[1])), (int(tlwh[0])+int(tlwh[2]), int(tlwh[1])+int(tlwh[3])) ,(255,255,255), 2)
                     cv2.putText(frame, str(tid),(int(tlwh[0]), int(tlwh[1])),0, 5e-3 * 200, (0,255,0),2)
-
+                    
                     vertical = tlwh[2] / tlwh[3] > args.aspect_ratio_thresh
-                    if True: # tlwh[2] * tlwh[3] > args.min_box_area and not vertical:
+                    if tlwh[2] * tlwh[3] > args.min_box_area and not vertical:
+                        
+                        """#Draw bbox from tracker.
+                        cv2.rectangle(frame, (int(tlwh[0]), int(tlwh[1])), (int(tlwh[0])+int(tlwh[2]), int(tlwh[1])+int(tlwh[3])) ,(255,255,255), 2)
+                        cv2.putText(frame, str(tid),(int(tlwh[0]), int(tlwh[1])),0, 5e-3 * 200, (0,255,0),2)
+                        """
+                        
+                        
                         online_tlwhs.append(tlwh)
                         online_ids.append(tid)
                         online_scores.append(t.score)
                         results.append(
                             f"{frame_id},{tid},{tlwh[0]:.2f},{tlwh[1]:.2f},{tlwh[2]:.2f},{tlwh[3]:.2f},{t.score:.2f},-1,-1,-1\n"
                         )
+                        dct[tid]=(int(tlwh[0]), int(tlwh[1]), int(tlwh[2]), int(tlwh[3]) )
+                        
+                        
                 timer.toc()
                 online_im = plot_tracking(
                     img_info['raw_img'], online_tlwhs, online_ids, frame_id=frame_id + 1, fps=1. / timer.average_time
@@ -310,22 +328,23 @@ def imageflow_demo(predictor, vis_folder, current_time, args):
             #ch = cv2.waitKey(1)
             #if ch == 27 or ch == ord("q") or ch == ord("Q"):
             #    break
-        else:
-            break
-        tracking_result[frame_id]=dct
-        DBN_result[frame_id]=dct_dbn
         
-        #if frame_id>=6:
-        #    exit()
-        frame_id += 1
-        print(frame_id)
+            tracking_result[frame_id]=dct
+            DBN_result[frame_id]=dct_dbn
+            
+            #if frame_id>=6:
+            #    exit()
+            frame_id += 1
+            print(frame_id)
+            
+        
         
 
     if args.save_result:
         vid_writer.release()
         with open(args.path.split('.mp4')[0]+'tracking_result.json', 'w') as outfile:
             json.dump(tracking_result, outfile)
-            print("the results txt files are printed in", outfile)
+            print("the results json files are printed in", outfile)
         def convert_to_json(o):
             try:
                 o=o.__dict__
@@ -341,7 +360,7 @@ def imageflow_demo(predictor, vis_folder, current_time, args):
         res_file = osp.join(vis_folder, f"{timestamp}.txt")
         with open(res_file, 'w') as f:
             f.writelines(results)
-        logger.info(f"save results to {res_file}")
+        logger.info(f"save results txt to {res_file}")
 
 
 def main(exp, args):

@@ -165,7 +165,7 @@ def adding_atq(nbr_visit, output_file, feeder=False,
                             observation = observation/sum(observation)
                             if max(observation)>=0.0:
                                 dbn_infos[str(frame_id)]["observation"][atq]=observation
-                                if is_it_random ==True: 
+                                if is_it_random ==True and feeder==False: 
                                     if random.choice( [False, False, False, True] ) ==True:
                                         dbn_infos[str(frame_id)]["observation"][atq]=np.random(loc=0, scale=1, size=(len(observation))).tolist() #***random of lengt between 0 and 1 
                                 #dbn_infos[str(frame_id)]["observed"]=atq
