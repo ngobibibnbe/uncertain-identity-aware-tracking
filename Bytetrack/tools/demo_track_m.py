@@ -295,7 +295,8 @@ def imageflow_demo(predictor, vis_folder, current_time, args):
                     #Draw bbox from tracker.
                     cv2.rectangle(frame, (int(tlwh[0]), int(tlwh[1])), (int(tlwh[0])+int(tlwh[2]), int(tlwh[1])+int(tlwh[3])) ,(255,255,255), 2)
                     cv2.putText(frame, str(tid),(int(tlwh[0]), int(tlwh[1])),0, 5e-3 * 200, (0,255,0),2)
-                    
+                    dct[tid]=(int(tlwh[0]), int(tlwh[1]), int(tlwh[2]), int(tlwh[3]) )
+                        
                     vertical = tlwh[2] / tlwh[3] > args.aspect_ratio_thresh
                     if tlwh[2] * tlwh[3] > args.min_box_area and not vertical:
                         
@@ -311,7 +312,6 @@ def imageflow_demo(predictor, vis_folder, current_time, args):
                         results.append(
                             f"{frame_id},{tid},{tlwh[0]:.2f},{tlwh[1]:.2f},{tlwh[2]:.2f},{tlwh[3]:.2f},{t.score:.2f},-1,-1,-1\n"
                         )
-                        dct[tid]=(int(tlwh[0]), int(tlwh[1]), int(tlwh[2]), int(tlwh[3]) )
                         
                         
                 timer.toc()
