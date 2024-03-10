@@ -109,36 +109,38 @@ def precise_accuracy_track(label_track, model_track, basic_tracker=False):
                 if len(matching.keys())== len(label_track[frame_id].keys()):
                     break
             return label_track_only_concerned , {value:key for key, value in matching.items() if float(key)>4800}
-    
     if basic_tracker==True:
         label_tracki, matching = match_track_and_atq(label_track, model_track)
-        print(matching)
     else:
-        label_tracki, _ = match_track_and_atq(label_track, model_track)
-    
+        matching= {k:k for k in model_track[1].keys() if  'identities' not in k}
     for frame_id in label_track.keys() :
         if frame_id in model_track.keys() :
             nbr_frame+=1
             matching_frame={}
             for model_atq, model_box in model_track[frame_id].items() :
                     max_iou=float('-inf')
+                    atq_matching_model =None
                     for  label_atq, label_box in label_track[frame_id].items():
                         if  label_atq!="observed" and model_atq!="observed" :#fix the problem with the obseved on the label 
                             tmp = iou(model_box["rectangle"], label_box["rectangle"])
                             if tmp>max_iou:
-                                if basic_tracker==True:
-                                    if model_atq in matching.keys(): #ca c'est pour les modèles qui crèent trop de nouvelles identités
-                                        matching_frame[matching[model_atq] ]=label_atq 
-                                else:
-                                    matching_frame[model_atq ]=label_atq 
                                 max_iou =tmp
+                                atq_matching_model = label_atq
+                                
+                    #if basic_tracker==True:
+                    if model_atq in matching.keys(): #ca c'est pour les modèles qui crèent trop de nouvelles identités
+                            matching_frame[matching[model_atq] ]=atq_matching_model 
+                    """else:
+                        matching_frame[model_atq ]=atq_matching_model """
+                                
             filtered ={key:value for key,value in matching_frame.items() if value==key }
             if len(matching_frame.keys())!=0:
                 acc = acc + len(filtered.keys())/ len(matching_frame.keys())
-                rec = rec+ len(filtered.keys())/ len(label_track[frame_id].keys())
+                rec = rec+ len(filtered.keys())/ len(matching.keys())
                 if len(filtered.keys())/ len(label_track[frame_id].keys())>1:
                     print("stop")
-
+        else:
+            print("weird thing")
 
     
     acc = acc/nbr_frame
@@ -157,12 +159,9 @@ track_base = "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/re
 
 label_track = read_data(label_file)
 #bytetrack_track= read_data(bytetrack_result_file)
-
 import pandas as pd 
 from ATQ import adding_atq
 from forwardBackward import process_forwad_backward
-
-
 import os 
 import time 
 
@@ -182,44 +181,50 @@ def score_for_various_artificial_observations():
     hmm_result_with_visits=pd.DataFrame(columns=["nbr of visits", "accuracy", "recall", "f1"])
     re_id_result_with_visits=pd.DataFrame(columns=["nbr of visits", "accuracy", "recall", "f1"])
 
-    for i in range (2, 200 , 10):# range (2, 200 , 10): #[10, 100]:#  [18]: # len(label_track.keys())
-        observation_file="videos/GR77_20200512_111314DBN_result_with_observations_visits_"+str(i)+".json"
-        print(i, "ok")
-        
-        """adding_atq(i, output_file=observation_file, feeder=False, is_it_random =True, video_debut=dt.datetime(2020, 5, 12, 9, 0,0), video_fin= dt.datetime(2020, 5, 12, 9, 10,0) )
-        process_forwad_backward(observation_file,nbr_visit=i, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+str(i)+".json")
-        Hmm_result_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+str(i)+".json"
+    #add error bar here 
+    for j in range(0,20):
+        for i in range (2, 200 , 10):# range (2, 200 , 10): #[10, 100]:#  [18]: # len(label_track.keys())
+            observation_file="videos/GR77_20200512_111314DBN_result_with_observations_visits_"+str(i)+".json"
+            print(i, "ok")
+            
+            #adding_atq(i, output_file=observation_file, feeder=False, is_it_random =True, video_debut=dt.datetime(2020, 5, 12, 9, 0,0), video_fin= dt.datetime(2020, 5, 12, 9, 10,0) )
+            process_forwad_backward(observation_file,nbr_visit=i, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+str(i)+".json")
+            Hmm_result_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+str(i)+".json"
 
-        hmm_track = read_data(Hmm_result_file)
-        acc, rec, f1= precise_accuracy_track(label_track, hmm_track)
-        new_row= {'nbr of visits':i, 'accuracy':acc, 'recall':rec, "f1":f1}
-        print(new_row)
-        hmm_result_with_visits = pd.concat([hmm_result_with_visits, pd.DataFrame([new_row])], ignore_index=True)
-        """
+            hmm_track = read_data(Hmm_result_file)
+            acc, rec, f1= precise_accuracy_track(label_track, hmm_track)
+            new_row= {'nbr of visits':i, 'accuracy':acc, 'recall':rec, "f1":f1}
+            #print(new_row)
+            hmm_result_with_visits = pd.concat([hmm_result_with_visits, pd.DataFrame([new_row])], ignore_index=True)
+            
 
-        ####Re_id_part of the work
-        re_id_track_result_file = "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_re_id.json"
-        tracking_result =produce_re_id_results(track_with_observation_file =observation_file , re_id_track_result_file = re_id_track_result_file )
-        re_id_track = read_data(re_id_track_result_file)
-        acc, rec, f1= precise_accuracy_track(label_track, re_id_track, basic_tracker=True)
-        new_row= {'nbr of visits':i, 'accuracy':acc, 'recall':rec, "f1":f1}
-        print(new_row)
-        re_id_result_with_visits = pd.concat([re_id_result_with_visits, pd.DataFrame([new_row])], ignore_index=True)
-        
-        hmm_result_with_visits.to_csv('accuracy_over_nbr_of_visits_with_track_helping.csv')
-        re_id_result_with_visits.to_csv('accuracy_Re_id_over_nbr_of_visits_with_track_helping.csv')
-        
-        #put_results_on_video ( tracking_result , save_path="video/re_id_192.mp4" , video_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314.mp4", track_with_observation_file=track_with_observation_file)
+            ####Re_id_part of the work
+            re_id_track_result_file = "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_re_id.json"
+            tracking_result =produce_re_id_results(track_with_observation_file =observation_file , re_id_track_result_file = re_id_track_result_file )
+            re_id_track = read_data(re_id_track_result_file)
+            acc, rec, f1= precise_accuracy_track(label_track, re_id_track, basic_tracker=True)
+            new_row= {'nbr of visits':i, 'accuracy':acc, 'recall':rec, "f1":f1}
+            #print(new_row)
+            re_id_result_with_visits = pd.concat([re_id_result_with_visits, pd.DataFrame([new_row])], ignore_index=True)
+            
+            hmm_result_with_visits.to_csv('results/accuracy_over_nbr_of_visits_with_track_helping'+str(j)+'.csv')
+            re_id_result_with_visits.to_csv('results/accuracy_Re_id_over_nbr_of_visits_with_track_helping'+str(j)+'.csv')
+            
+            #put_results_on_video ( tracking_result , save_path="video/re_id_192.mp4" , video_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314.mp4", track_with_observation_file=track_with_observation_file)
 
 
 
 def score_for_visit_at_feeder():
-    observation_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations_feeder.json"
-    #adding_atq(1, output_file=observation_file, feeder=True, video_debut=dt.datetime(2020, 5, 12, 9, 0,0), video_fin= dt.datetime(2020, 5, 12, 9, 10,0), )
-    process_forwad_backward(observation_file,nbr_visit=1, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json")
+    tag = "_feeder_H_0.07.json"
+    observation_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations"+tag
+    Hmm_result_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag
+
+    #observation_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations_feeder_n_0.5.json"
+    
+    adding_atq(0, output_file=observation_file, feeder=True, video_debut=dt.datetime(2020, 5, 12, 9, 0,0), video_fin= dt.datetime(2020, 5, 12, 9, 10,0), )
+    process_forwad_backward(observation_file,nbr_visit=0, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag)
     print("ok")
     
-    Hmm_result_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json"
     hmm_track = read_data(Hmm_result_file)
     acc, rec, f1= precise_accuracy_track(label_track, hmm_track, basic_tracker=False)
     #acc, rec, f1= precise_accuracy_track(label_track, hmm_track, basic_tracker=True)
@@ -236,6 +241,7 @@ def score_for_re_id_visit_at_feeder():
     adding_atq(1, output_file=observation_file, feeder=True, video_debut=dt.datetime(2020, 5, 12, 9, 0,0), video_fin= dt.datetime(2020, 5, 12, 9, 10,0), )
     process_forwad_backward(observation_file,nbr_visit=1, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json")
     print("ok")"""
+    print("we start re-identification")
     re_id_track_result_file = "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_re_id.json"
     track_with_observation_file= "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations_feeder.json"
     tracking_result =produce_re_id_results(track_with_observation_file, re_id_track_result_file)
@@ -251,9 +257,8 @@ def score_for_re_id_visit_at_feeder():
 
 import argparse
 if __name__=="__main__":
-    
-    parser = argparse.ArgumentParser(description="Export a Conda environment with all its packages.")
-    parser.add_argument("mode", type=str, help="Name of the mode.")
+    parser = argparse.ArgumentParser(description="Arguments for the performance assessement")
+    parser.add_argument("--mode", type=str, help="Name of the mode.")
     args = parser.parse_args()
     if args.mode == "feeder":
         score_for_visit_at_feeder()

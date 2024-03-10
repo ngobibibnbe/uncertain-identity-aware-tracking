@@ -25,6 +25,40 @@ performance_test.py tracker_test
 
 #details of further analysis are provided on our github 
 
+Bytetrack: {'nbr of visits': 0, 'accuracy': 0.5192547300415271, 'recall': 0.5053068758652532, 'f1': 0.5121858635007496}
+
+
+etude des visites: 21 sont rewarded dont 18 bonnes et 3 mauvaises  pkw 21 vu que le feeder a un problème on prend une marge de 2 secondes au debut et à la fin de la visite pour donner plus de chance au modèle d'avoir le bon animal 
+Bytetrack: 0.54
+re-id : 0.541
+h 0.5  {'nbr of visits': 'feeder', 'accuracy': 0.7106643673988, 'recall': 0.5433608640406608, 'f1': 0.6158523688865077}
+hungarian 0.3 {'nbr of visits': 'feeder', 'accuracy': 0.6962021742199619, 'recall': 0.5964986587604136, 'f1': 0.6425054468184063}
+hungarian 0.2 {'nbr of visits': 'feeder', 'accuracy': 0.6961986446420995, 'recall': 0.5984752223634068, 'f1': 0.6436487972449526}
+hungarian 0.1 {'nbr of visits': 'feeder', 'accuracy': 0.6961986446420995, 'recall': 0.5984752223634068, 'f1': 0.6436487972449526}
+hungarian 0.0 {'nbr of visits': 'feeder', 'accuracy': 0.59, 'recall': 0.5984752223634068, 'f1': 0.59}
+n 0.0 {'nbr of visits': 'feeder', 'accuracy': 0.6796857667251558, 'recall': 0.6036989975998894, 'f1': 0.6394428661784626}
+n 0.1 {'nbr of visits': 'feeder', 'accuracy': 0.68058580908009, 'recall': 0.604404913172387, 'f1': 0.6402371623700921}
+n 0.2 {'nbr of visits': 'feeder', 'accuracy': 0.6811177668865078, 'recall': 0.604687279401386, 'f1': 0.6406309426138821}
+n 0.5  {'nbr of visits': 'feeder', 'accuracy': 0.7016321776486948, 'recall': 0.5476493011435832, 'f1': 0.6151509940267806}
+
+
+en prenant une 1 seconde de marge à gauche et à droite, pour le best{'nbr of visits': 'feeder', 'accuracy': 0.6696168895342971, 'recall': 0.5470845686855833, 'f1': 0.6021806988403379} donc on garde nos 21 secondes. 
+
+
+pkw le re_id ne s'ameliore pas vraiment, expliquer ca 
+
+je prend seulement 21 frames de visites, essayer d'enlever la contraintes sur les 21 et laisser toutes les observations (since we corrected labeling errors )
 
 
 
+
+corrected annotations:
+0.0
+0.07
+    H_{'nbr of visits': 0, 'accuracy': 0.5918149089368945, 'recall': 0.4714104193138501, 'f1': 0.5247950871093896}
+    n_{'nbr of visits': 'feeder', 'accuracy': 0.5921456808051503, 'recall': 0.4852463645348049, 'f1': 0.5333927238993514}
+    n_less: {'nbr of visits': 'feeder', 'accuracy': 0.5721748250337841, 'recall': 0.5012000564732473, 'f1': 0.534340908400742}
+0.1
+0.2
+0.3
+0.5

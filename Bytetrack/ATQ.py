@@ -6,14 +6,14 @@ import copy
 import cv2
 import math
 import random
-random.seed(42)
+#random.seed(42)
 
 from datetime import timedelta
 
 ###########reading important files and setting the max number of frame ##########
 home_folder= "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
 is_it_random = False
-
+visits_with_frame=[]
 
 
 def adding_atq(nbr_visit, output_file, feeder=False, 
@@ -42,13 +42,7 @@ def adding_atq(nbr_visit, output_file, feeder=False,
         write in a file: /home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations.json 
     """
     
-    with open(labels_file) as f:
-            labels = json.load(f) 
-    #V=50#Nomber of random visits 
-    idx_selection = [ i for i in range(0, len(labels.keys()), int(len(list(labels.keys()))/nbr_visit) ) ] #random.sample(list(labels.keys()), nbr_visit)
-    random_selection = [list(labels.keys())[i] for i  in idx_selection ]
-    #########################################################################
-
+    
 
     ########################defining utils functions#####################
     def convert_to_json(o):
@@ -96,12 +90,11 @@ def adding_atq(nbr_visit, output_file, feeder=False,
     if feeder==True:
         water_visits=pd.read_excel(water_file)
         feeder_visits=pd.read_excel(feeder_file)
+        #feeder_visits = water_visits
         #feeder_visits["debut"] = feeder_visits["Date_fin"].combine(feeder_visits["Tfin"], lambda d, t: pd.datetime.combine(d, t))
         #feeder_visits['debut'] = [feeder_visits['debut'][idx] - timedelta(seconds=feeder_visits['Duree_s'][idx]) for idx in feeder_visits.index ]
         
-        feeder_visits['fin'] =  pd.to_datetime(pd.to_datetime (feeder_visits['Date_fin']  ).dt.strftime('%Y-%m-%d') + " "+ pd.to_datetime (feeder_visits['Tfin'],  format='%H:%M:%S' ).dt.strftime('%H:%M:%S') )
-        feeder_visits["debut"] = [pd.to_datetime(feeder_visits['fin'])[idx] - timedelta(seconds=int(feeder_visits['Duree_s'][idx]))   for idx in feeder_visits.index ]
-        feeder_visits["animal_num"]= feeder_visits ["Animal"]
+        
         
         # feeder_visits['debut']  = pd.to_datetime (feeder_data['Tdebut'],  format='%H:%M:%S'  ).dt.strftime('%H:%M')
                 
@@ -111,8 +104,12 @@ def adding_atq(nbr_visit, output_file, feeder=False,
         #on selectionne les visites qui sont sensées être dans la vidéo
         
         water_visits = water_visits.loc[(water_visits["debut"]>video_debut ) & (water_visits["debut"]<video_fin) ]
-        feeder_visits = feeder_visits.loc[(feeder_visits["debut"]>video_debut) & (feeder_visits["debut"]<video_fin) ]
-        feeder_visits.to_csv("test.csv")
+        water_visits.to_csv("test.csv")
+
+        """feeder_visits['fin'] =  pd.to_datetime(pd.to_datetime (feeder_visits['Date_fin']  ).dt.strftime('%Y-%m-%d') + " "+ pd.to_datetime (feeder_visits['Tfin'],  format='%H:%M:%S' ).dt.strftime('%H:%M:%S') )
+        feeder_visits["debut"] = [pd.to_datetime(feeder_visits['fin'])[idx] - timedelta(seconds=int(feeder_visits['Duree_s'][idx]))   for idx in feeder_visits.index ]
+        feeder_visits["animal_num"]= feeder_visits ["Animal"]
+        feeder_visits = feeder_visits.loc[(feeder_visits["debut"]>video_debut) & (feeder_visits["debut"]<video_fin) ]"""
         #print(len(water_visits), len(feeder_visits))
         
         
@@ -131,6 +128,7 @@ def adding_atq(nbr_visit, output_file, feeder=False,
                 # je rajoute +50 frame de marge entre les debuts et fin de visites 
                 frame_id_debut = int((debut-video_debut).total_seconds()*24.63666666666 +100) # +2 secondes
                 frame_id_fin =  min(frame_id_debut+2, int((fin-video_debut).total_seconds()*24.63666666666 - 100) )#-2 secondes 
+                #vu que le feeder a un problème on prend une marge de 2 secondes au debut et à la fin de la visite pour donner plus de chance au modèle d'avoir le bon animal 
                 frame_id=frame_id_debut+1
                 flag=False
                 while frame_id<frame_id_fin: 
@@ -163,7 +161,7 @@ def adding_atq(nbr_visit, output_file, feeder=False,
                             observation = np.array(observation)
                             observation = 1/(1+observation)
                             observation = observation/sum(observation)
-                            if max(observation)>=0.0:
+                            if max(observation)>=0.0: #no more useful to be removed 
                                 dbn_infos[str(frame_id)]["observation"][atq]=observation
                                 if is_it_random ==True and feeder==False: 
                                     if random.choice( [False, False, False, True] ) ==True:
@@ -171,13 +169,15 @@ def adding_atq(nbr_visit, output_file, feeder=False,
                                 #dbn_infos[str(frame_id)]["observed"]=atq
                                 if flag==False:
                                     flag=True
+                            else:
+                                print("max observation is lower than 0")
                     else:
                         print("**not in the video",frame_id)
                 
                 if flag==True:
                     nbr_of_visits+=1
             print("nbr of rewarded visits",nbr_of_visits)
-        add_observations(feeder_visits, feeder_center)
+        #add_observations(feeder_visits, feeder_center)
         add_observations(water_visits, water_center)
 
     #####################################################################################################
@@ -187,6 +187,13 @@ def adding_atq(nbr_visit, output_file, feeder=False,
     
     #### when we do random selection 
     else:
+        with open(labels_file) as f:
+            labels = json.load(f) 
+        #V=50#Nomber of random visits 
+        idx_selection = [ i for i in range(0, len(labels.keys()), int(len(list(labels.keys()))/nbr_visit) ) ] #random.sample(list(labels.keys()), nbr_visit)
+        random_selection = [list(labels.keys())[i] for i  in idx_selection ]
+        #########################################################################
+
         for frame_id in random_selection:
             visitor_id = random.sample(list(labels[frame_id].keys()), 1)[0]
             #visitor_id = list(labels[frame_id].keys())[0]
@@ -297,4 +304,4 @@ def adding_atq(nbr_visit, output_file, feeder=False,
         
         
         
-#adding_atq(nbr_visit=1, output_file=, labels_file=home_folder+"/videos/labels_with_atq.json")
+"""adding_atq(nbr_visit=1, feeder=True, output_file="test2_to_del", labels_file=home_folder+"/videos/labels_with_atq.json")"""

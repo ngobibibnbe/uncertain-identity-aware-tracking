@@ -14,7 +14,7 @@ def produce_re_id_results(track_with_observation_file, re_id_track_result_file):
         data = json.load(json_file)
         
     tracking_result={}
-    observation_infos =[]
+    observation_infos =pd.DataFrame(columns=["frame_id", "observed"])
     matching={}
     corrected = {}
     #pour chaque ligne avec une observation garder le temps, atq, le track_id avec le max de chance d'être l'atq
@@ -25,9 +25,11 @@ def produce_re_id_results(track_with_observation_file, re_id_track_result_file):
                 for atq in frame_infos["observation"].keys():
                     max_track_id =np.argmax(np.array(frame_infos["observation"][atq]))
                     track_id = frame_infos["current"][max_track_id]['track_id']
-                    observation_infos.append((frame_id,atq,track_id))
+                    
+                    observation_infos = pd.concat([observation_infos, pd.DataFrame([{"frame_id":frame_id, "atq":atq, "track_id":track_id }])], ignore_index=True)
                     if atq in matching.keys() : 
                         if matching[atq]!=track_id:
+                            trompe_avec= matching[atq]
                             corrected[track_id] = matching[atq]
                             corrected[matching[atq]] = track_id
                             
@@ -50,19 +52,20 @@ def produce_re_id_results(track_with_observation_file, re_id_track_result_file):
     with open(re_id_track_result_file, 'w') as outfile:
             json.dump(tracking_result, outfile)
     print("re-id is done")
+    observation_infos.to_csv("/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/visualize/observations.csv")
     return tracking_result
     
 
 
 
-def put_results_on_video(track, video_path, save_path, track_with_observation_file= track_with_observation_file):
+def put_results_on_video(track, video_path, save_path):
     import cv2 
     cap = cv2.VideoCapture(video_path)
     width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)  # float
     height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)  # float
     fps = cap.get(cv2.CAP_PROP_FPS)
     
-    vid_writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*"mp4v"), 1, (int(width), int(height)))     
+    vid_writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*"mp4v"), 30, (int(width), int(height)))     
     # Center coordinates
     center_coordinates = (625, 70)
     # Radius of circle
@@ -73,8 +76,8 @@ def put_results_on_video(track, video_path, save_path, track_with_observation_fi
     thickness = 2
     
     
-    with open(track_with_observation_file, 'r') as json_file:
-        data = json.load(json_file)
+    """with open(track_with_observation_file, 'r') as json_file:
+        data = json.load(json_file)"""
         
     ret_val, frame = cap.read()
     frame_id=1
@@ -86,11 +89,11 @@ def put_results_on_video(track, video_path, save_path, track_with_observation_fi
         frame = cv2.circle(frame, center_coordinates, radius, color, thickness)
         frame = cv2.circle(frame, (90,102), radius, color, thickness)
         #addd
-        if frame_id in track.keys():
+        if str(frame_id) in track.keys():
             
             if (frame_id!="0") :
                 cv2.putText(frame, str(frame_id),(90+580, 20),0, 5e-3 * 200, (0,255,0),2)
-                for track_id,tlwh in track[frame_id].items():
+                for track_id,tlwh in track[str(frame_id)].items():
                     
                     tid= str(track_id)   
                     cv2.rectangle(frame, (int(tlwh[0]), int(tlwh[1])), (int(tlwh[0])+int(tlwh[2]), int(tlwh[1])+int(tlwh[3])) ,(255,255,255), 2)
@@ -154,5 +157,5 @@ label = read_data(label_file)
 #put_results_on_video ( label , save_path="label_video.mp4" , video_path=video_path, track_with_observation_file=track_with_observation_file)
 """
 
-#tracking_result =produce_re_id_results(track_with_observation_file, re_id_track_result_file)
-#put_results_on_video ( tracking_result , save_path="videos/re_id_feeder_video.mp4" , video_path=video_path, track_with_observation_file=track_with_observation_file)
+tracking_result =produce_re_id_results(track_with_observation_file, re_id_track_result_file)
+"""put_results_on_video ( tracking_result , save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/visualize/re_id_feeder_video.mp4" , video_path=video_path)"""
