@@ -9,9 +9,10 @@ import json
 import copy
 #!pip install opencv-python
 import cv2
-POWERFULNESS=0.5
-hungarian = False
-confidence_threshold = 0.0  #### sophie mod 
+POWERFULNESS=1 #inverse of power of older observations
+hungarian = True
+confidence_threshold = 0.067  #### sophie mod 
+confidence_on_hmm_choice=11  #1 equivaut à une normalisation basique #1.5
 
 Home_folder=  "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
 #en supposant que les observations sont independantes la normalisation à 1 des alpha et beta est acceptable 
@@ -19,7 +20,6 @@ Home_folder=  "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
 
 
 def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result.json", video_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314.mp4"):
-    confidence_on_hmm_choice=2#1.5
     """_summary_
     parameter: confidence_threshold
 
@@ -47,6 +47,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                 alpha[V[t]]=np.ones(a["t="+str(V[t])].shape[1]) #ca gère uniquement la première frame, il faudrait trouver un moyen de conserver les valeurs de alpha quand on a rien à la mangeoire
             else:
                 tmp_b=b["t="+str(V[t])]
+                #tmp_alpha = np.power(alpha[V[t-1]],POWERFULNESS)
                 if "t="+str(V[t]) in list(b.keys()) and  (b["t="+str(V[t])].max()==b["t="+str(V[t])].min()) and (alpha[V[t-1]].max()!= alpha[V[t-1]].min()):
                     tmp_alpha = np.power(alpha[V[t-1]],POWERFULNESS)  #np.exp(alpha[V[t-1]])
                 
@@ -91,6 +92,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                     beta[V[t]]=np.ones(a["t="+str(V[t+1])].shape[0]) #ca gère uniquement la première frame, il faudrait trouver un moyen de conserver les valeurs de alpha quand on a rien à la mangeoire
                 else:
                     tmp_b=b["t="+str(V[t])]
+                    #tmp_beta = np.power(beta[V[t+1]],POWERFULNESS)  #np.exp(alpha[V[t-1]])
                     if  (b["t="+str(V[t+1])].max()==b["t="+str(V[t+1])].min()) and (beta[V[t+1]].max()!= beta[V[t+1]].min()):
                         tmp_beta = np.power(beta[V[t+1]],POWERFULNESS)  #np.exp(alpha[V[t-1]])
 

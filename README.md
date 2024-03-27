@@ -12,7 +12,7 @@ We used Bytetrack as tracker, to get the tracker matching matrix
 type those commands:
 
 cd path_to_bytetrack/ByteTrack
-python3 tools/demo_track_m.py video -f exps/example/mot/yolox_s_mix_det.py -c path_to_bytetrack/ByteTrack/models/yoloX_s_pig_trained_model_400_images.tar --path path_to_bytetrack/ByteTrack/videos/GR77_20200512_111314.mp4  --fuse --save_result --device cpu --fps 25 --conf 0.2 --track_thres 0.2  --match_thresh 1.0 --nms 0.45 --tsize 416 
+python3 tools/demo_track_m.py video -f exps/example/mot/yolox_s_mix_det.py -c path_to_bytetrack/ByteTrack/models/yoloX_s_pig_trained_model_400_images.tar --path path_to_bytetrack/ByteTrack/videos/GR77_20200512_111314.mp4  --fuse --save_result --device cpu --fps 25 --conf 0.2 --track_thres 0.2  --match_thresh 0.8 --track_buffer 100  --nms 0.45 --tsize 416 
 
 # you can reproduce our test with artificial visit using the command 
 performance_test.py artificial_visits
@@ -34,10 +34,11 @@ To get comparison between all the trackers and our proposed method (******maybe 
 
 
 The dataset is available at : **** 
-to find deleted file on zfs make cd .zfs/snapshot then ls -a 
+to find deleted file on zfs make cd /home/sophie cd .zfs/snapshot then ls -a 
 
 
-
+papier: 
+definir la reidentification dans le papier et refaire la reidentification car pour la reidentification le f1-score 
 
 
 
