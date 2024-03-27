@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <annotation>
   <folder>frames</folder>
-  <filename>frame_844.jpg</filename>
+  <filename>frame_0.jpg</filename>
   <size>
     <width>1280</width>
     <height>720</height>
@@ -10,136 +10,136 @@
   <object>
     <name>object_4814.0</name>
     <bndbox>
-      <xmin>594</xmin>
-      <ymin>85</ymin>
-      <xmax>661</xmax>
-      <ymax>205</ymax>
+      <xmin>185</xmin>
+      <ymin>64</ymin>
+      <xmax>304</xmax>
+      <ymax>94</ymax>
     </bndbox>
   </object>
   <object>
     <name>object_4810.0</name>
     <bndbox>
-      <xmin>979</xmin>
-      <ymin>457</ymin>
-      <xmax>1124</xmax>
-      <ymax>664</ymax>
+      <xmin>862</xmin>
+      <ymin>524</ymin>
+      <xmax>1080</xmax>
+      <ymax>715</ymax>
     </bndbox>
   </object>
   <object>
     <name>object_4811.0</name>
     <bndbox>
-      <xmin>1122</xmin>
-      <ymin>585</ymin>
-      <xmax>1214</xmax>
-      <ymax>639</ymax>
+      <xmin>1143</xmin>
+      <ymin>596</ymin>
+      <xmax>1204</xmax>
+      <ymax>628</ymax>
     </bndbox>
   </object>
   <object>
     <name>object_4817.0</name>
     <bndbox>
-      <xmin>1104</xmin>
-      <ymin>463</ymin>
+      <xmin>1113</xmin>
+      <ymin>534</ymin>
       <xmax>1195</xmax>
-      <ymax>567</ymax>
+      <ymax>549</ymax>
     </bndbox>
   </object>
   <object>
     <name>object_13</name>
     <bndbox>
-      <xmin>1103</xmin>
-      <ymin>333</ymin>
-      <xmax>1186</xmax>
-      <ymax>486</ymax>
+      <xmin>1182</xmin>
+      <ymin>339</ymin>
+      <xmax>1188</xmax>
+      <ymax>500</ymax>
     </bndbox>
   </object>
   <object>
     <name>object_4812.0</name>
     <bndbox>
-      <xmin>50</xmin>
-      <ymin>516</ymin>
-      <xmax>51</xmax>
-      <ymax>517</ymax>
+      <xmin>1098</xmin>
+      <ymin>159</ymin>
+      <xmax>1148</xmax>
+      <ymax>337</ymax>
     </bndbox>
   </object>
   <object>
     <name>object_15</name>
     <bndbox>
-      <xmin>775</xmin>
-      <ymin>49</ymin>
-      <xmax>925</xmax>
-      <ymax>145</ymax>
+      <xmin>785</xmin>
+      <ymin>43</ymin>
+      <xmax>948</xmax>
+      <ymax>133</ymax>
     </bndbox>
   </object>
   <object>
     <name>object_4807.0</name>
     <bndbox>
-      <xmin>482</xmin>
-      <ymin>101</ymin>
-      <xmax>608</xmax>
-      <ymax>188</ymax>
+      <xmin>106</xmin>
+      <ymin>116</ymin>
+      <xmax>202</xmax>
+      <ymax>139</ymax>
     </bndbox>
   </object>
   <object>
     <name>object_4818.0</name>
     <bndbox>
-      <xmin>46</xmin>
-      <ymin>180</ymin>
-      <xmax>144</xmax>
-      <ymax>297</ymax>
+      <xmin>106</xmin>
+      <ymin>186</ymin>
+      <xmax>175</xmax>
+      <ymax>316</ymax>
     </bndbox>
   </object>
   <object>
     <name>object_4</name>
     <bndbox>
-      <xmin>68</xmin>
-      <ymin>627</ymin>
-      <xmax>289</xmax>
-      <ymax>699</ymax>
+      <xmin>29</xmin>
+      <ymin>473</ymin>
+      <xmax>224</xmax>
+      <ymax>538</ymax>
     </bndbox>
   </object>
   <object>
     <name>object_4815.0</name>
     <bndbox>
-      <xmin>270</xmin>
-      <ymin>492</ymin>
-      <xmax>408</xmax>
-      <ymax>718</ymax>
+      <xmin>149</xmin>
+      <ymin>612</ymin>
+      <xmax>380</xmax>
+      <ymax>706</ymax>
     </bndbox>
   </object>
   <object>
     <name>object_4804.0</name>
     <bndbox>
-      <xmin>171</xmin>
-      <ymin>87</ymin>
-      <xmax>304</xmax>
-      <ymax>150</ymax>
+      <xmin>255</xmin>
+      <ymin>521</ymin>
+      <xmax>365</xmax>
+      <ymax>672</ymax>
     </bndbox>
   </object>
   <object>
     <name>object_7</name>
     <bndbox>
-      <xmin>959</xmin>
-      <ymin>93</ymin>
-      <xmax>1123</xmax>
-      <ymax>180</ymax>
+      <xmin>298</xmin>
+      <ymin>478</ymin>
+      <xmax>444</xmax>
+      <ymax>706</ymax>
     </bndbox>
   </object>
   <object>
     <name>object_4808.0</name>
     <bndbox>
-      <xmin>749</xmin>
+      <xmin>472</xmin>
       <ymin>451</ymin>
-      <xmax>809</xmax>
-      <ymax>702</ymax>
+      <xmax>541</xmax>
+      <ymax>706</ymax>
     </bndbox>
   </object>
   <object>
     <name>object_4809.0</name>
     <bndbox>
-      <xmin>699</xmin>
-      <ymin>60</ymin>
-      <xmax>777</xmax>
-      <ymax>150</ymax>
+      <xmin>595</xmin>
+      <ymin>571</ymin>
+      <xmax>784</xmax>
+      <ymax>712</ymax>
     </bndbox>
   </object>
 </annotation>

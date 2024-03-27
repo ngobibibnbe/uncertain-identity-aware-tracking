@@ -16,15 +16,7 @@ def get_all_videos_in_subdirectories(root_path, video_extensions=['.mp4', '.avi'
 
     return video_files
 
-"""APP_KEY = "eklndt4zfwt60ng"
-APP_SECRET = "6ceg2sqgg2s4l06"
 
-oauth2_refresh_token="KXypH0WvX4YAAAAAAAAAAQJXPuuh10Cg4iqU8YmSMtrp8b8ff-1VwW_ySYjWeQD2"
-dbx=dropbox.Dropbox(oauth2_refresh_token=oauth2_refresh_token,app_key=APP_KEY,app_secret=APP_SECRET)
-
-# Accès aux données du serveur 252
-tempresult = dbx.files_list_folder("/smarttracking/clients/deschambault/backup/serveur252")
-"""
 #Si ça peut être utilie, je joins une petite fonction pour lister le contenu d'un répertoire
 #__________________________________________________________________________________
 #
