@@ -70,6 +70,7 @@ def precise_accuracy_track(label_track, model_track, basic_tracker=False):
     import re
     start=True 
     nbr_frame=0
+    nbr_frame_acc=0
     acc =0
     rec=0
     """if basic_tracker==True:
@@ -112,29 +113,45 @@ def precise_accuracy_track(label_track, model_track, basic_tracker=False):
     if basic_tracker==True:
         label_tracki, matching = match_track_and_atq(label_track, model_track)
     else:
-        matching= {k:k for k in model_track[1].keys() if  'identities' not in k}
+
+        matching= {k:k for k in model_track[1].keys() if  'identities' not in k and float(k)>4800}
     for frame_id in label_track.keys() :
         if frame_id in model_track.keys() :
             nbr_frame+=1
             matching_frame={}
-            for model_atq, model_box in model_track[frame_id].items() :
-                    max_iou=float('-inf')
+            matrice=np.zeros((len( model_track[frame_id].keys()),len(label_track[frame_id].keys())))
+            
+            for model_idx, model_atq in enumerate(model_track[frame_id].keys() ):
+                    model_box = model_track[frame_id][model_atq]
+                    max_iou=0
                     atq_matching_model =None
-                    for  label_atq, label_box in label_track[frame_id].items():
+                    for  label_idx,label_atq  in enumerate(label_track[frame_id].keys()):
+                        label_box = label_track[frame_id][label_atq]
                         if  label_atq!="observed" and model_atq!="observed" :#fix the problem with the obseved on the label 
                             tmp = iou(model_box["rectangle"], label_box["rectangle"])
+                            matrice[model_idx][label_idx] =tmp
                             if tmp>max_iou:
                                 max_iou =tmp
                                 atq_matching_model = label_atq
-                                
-                    #if basic_tracker==True:
-                    if model_atq in matching.keys(): #ca c'est pour les modèles qui crèent trop de nouvelles identités
-                            matching_frame[matching[model_atq] ]=atq_matching_model 
-                    """else:
-                        matching_frame[model_atq ]=atq_matching_model """
-                                
+            
+            row_ind, col_ind = linear_sum_assignment(matrice)
+            label_atqs= list(label_track[frame_id].keys())
+            model_atqs= list(model_track[frame_id].keys() )
+            for model_idx in row_ind :
+                model_atq = model_atqs[model_idx]
+                if model_atq in matching.keys():
+                    matching_frame[matching[model_atq]] = label_atqs[col_ind[model_idx]] 
+
+
+            #if basic_tracker==True:
+            """if model_atq in matching.keys(): #ca c'est pour les modèles qui crèent trop de nouvelles identités
+                    matching_frame[matching[model_atq] ]=atq_matching_model """
+            """else:
+                matching_frame[model_atq ]=atq_matching_model """
+                        
             filtered ={key:value for key,value in matching_frame.items() if value==key }
             if len(matching_frame.keys())!=0:
+                nbr_frame_acc+=1
                 acc = acc + len(filtered.keys())/ len(matching_frame.keys())
                 rec = rec+ len(filtered.keys())/ len(matching.keys())
                 if len(filtered.keys())/ len(label_track[frame_id].keys())>1:
@@ -143,7 +160,7 @@ def precise_accuracy_track(label_track, model_track, basic_tracker=False):
             print("weird thing")
 
     
-    acc = acc/nbr_frame
+    acc = acc/nbr_frame_acc
     rec=rec/nbr_frame
     f1=2*acc*rec/(acc+rec)
     print(acc, rec) 
@@ -213,7 +230,30 @@ def score_for_various_artificial_observations():
             #put_results_on_video ( tracking_result , save_path="video/re_id_192.mp4" , video_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314.mp4", track_with_observation_file=track_with_observation_file)
 
 
+def score_for_model():
+    tag = "_model.json"
+    observation_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations"+tag
+    Hmm_result_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag
+    model_result_file = "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/model_yolo_result.json"
+    
+    #adding_atq(0, output_file=observation_file, feeder=False,model=True )
 
+    model_result = read_data(model_result_file)
+    acc, rec, f1= precise_accuracy_track(label_track, model_result, basic_tracker=False)
+    #acc, rec, f1= precise_accuracy_track(label_track, hmm_track, basic_tracker=True)
+    new_row= {'mode result nbr of visits':"feeder", 'accuracy':acc, 'recall':rec, "f1":f1}
+    print(new_row)
+    
+    process_forwad_backward(observation_file,nbr_visit=0, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag)
+    hmm_track = read_data(Hmm_result_file)
+    acc, rec, f1= precise_accuracy_track(label_track, hmm_track, basic_tracker=False)
+    #acc, rec, f1= precise_accuracy_track(label_track, hmm_track, basic_tracker=True)
+    new_row= {'hmm+model result nbr of visits':"feeder", 'accuracy':acc, 'recall':rec, "f1":f1}
+    print(new_row)
+    #hmm_result_with_visits = pd.concat([hmm_result_with_visits, pd.DataFrame([new_row])], ignore_index=True)    
+    #hmm_result_with_visits.to_csv('accuracy_over_nbr_of_visits_with_track_helping.csv')
+    
+    
 def score_for_visit_at_feeder():
     tag = "_feeder_H_0.07.json"
     observation_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations"+tag
@@ -222,7 +262,7 @@ def score_for_visit_at_feeder():
     #observation_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations_feeder_n_0.5.json"
     
     #adding_atq(0, output_file=observation_file, feeder=True, video_debut=dt.datetime(2020, 5, 12, 9, 0,0), video_fin= dt.datetime(2020, 5, 12, 9, 10,0), )
-    process_forwad_backward(observation_file,nbr_visit=0, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag)
+    #process_forwad_backward(observation_file,nbr_visit=0, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag)
     print("ok")
     
     hmm_track = read_data(Hmm_result_file)
@@ -257,11 +297,14 @@ def score_for_re_id_visit_at_feeder():
 
 import argparse
 if __name__=="__main__":
+    score_for_visit_at_feeder()
     parser = argparse.ArgumentParser(description="Arguments for the performance assessement")
     parser.add_argument("--mode", type=str, help="Name of the mode.")
     args = parser.parse_args()
     if args.mode == "feeder":
         score_for_visit_at_feeder()
+    if args.mode == "model":
+        score_for_model()
     if args.mode == "artificial_visits":
         score_for_various_artificial_observations()
     if args.mode == "tracker_test":

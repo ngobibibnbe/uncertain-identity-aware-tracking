@@ -260,6 +260,8 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
         if hungarian== True:
             #######Hungarian version whICH seems to be ok   
             try:
+                #to avoid error in hungarian assignement we will replace nan by 0 those nan occures when the object is not present in one of the previous or next frame this is output in the forward backward process
+                matrice =  np.nan_to_num(matrice, nan=0)
                 row_ind, col_ind = linear_sum_assignment(-matrice) #since the function is looking for the assignement minimizing the sum, we put the opposite of the propabiliy in cells 
             except:
                 print("xeption on this matrix")#,t,identities_list[3], L[identities_list[3]]["t="+str(t)], matrice)            
