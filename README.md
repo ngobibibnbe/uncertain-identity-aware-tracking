@@ -1,5 +1,16 @@
 # Uncertain Identity Aware Tracking
 
+
+### Dataset 
+
+The dataset is available in the dataset folder
+
+
+### Files 
+
+[Bytetrack](Bytetrack): contains code for getting the tracker transition matrix, add observations, and perform the HMM Tracking 
+[Bytetrack/forwardBackward.py](forwardBackward.py): contains code  performing the HMM Tracking 
+
 ### Requirements
 
 To install the required packages, run the following commands:
@@ -36,10 +47,6 @@ performance_test.py tracker_test
 
 ### To visualize MOTA, IDF1, number of switches etc. 
 you can launch the notebook: Bytetrack/MOT_metric_evaluation/tracking_evaluation.ipynb
-
-### Dataset 
-
-The dataset is available in the dataset folder
 
 
 
