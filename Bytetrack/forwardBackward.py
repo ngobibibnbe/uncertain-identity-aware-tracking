@@ -11,20 +11,20 @@ import copy
 import cv2
 POWERFULNESS=1 #inverse of power of older observations
 hungarian = True
-confidence_threshold = 0.067  #### sophie mod 
+confidence_threshold = 0.067  #### Our mod 
 confidence_on_hmm_choice=11  #1 equivaut à une normalisation basique #1.5
 
-Home_folder=  "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
+Home_folder=  "Bytetrack"
 #en supposant que les observations sont independantes la normalisation à 1 des alpha et beta est acceptable 
 #la solution qui suivra sera de choisir l'identité la plus acceptée au niveau de L et de l'affecté à la localisation identifié dans le tracking 
 
 
-def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result.json", video_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314.mp4"):
+def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path="Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result.json", video_path="Bytetrack/videos/GR77_20200512_111314.mp4"):
     """_summary_
     parameter: confidence_threshold
 
     Returns:
-        write a video with ATQ and put the results in the file /home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_resut.json
+        write a video with ATQ and put the results in the file Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_resut.json
     """
     import numpy as np 
     def softmax(x):
@@ -116,7 +116,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                 for j in range(a["t="+str(V[t+1])].shape[0]):
                     beta[V[t]][j] = (tmp_beta * b["t="+str(V[t + 1])]).dot(a["t="+str(V[t+1])][j, :])
 
-                beta[V[t]]=softmax(beta[V[t]])#sophie mod  beta[V[t]]/beta[V[t]].sum() #"""
+                beta[V[t]]=softmax(beta[V[t]])#Our mod  beta[V[t]]/beta[V[t]].sum() #"""
 
 
         return beta

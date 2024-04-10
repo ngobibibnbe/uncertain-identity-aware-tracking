@@ -11,7 +11,7 @@ random.seed(42)
 from datetime import timedelta
 
 ###########reading important files and setting the max number of frame ##########
-home_folder= "/home/sophie/HMM-Tracking/Bytetrack"
+home_folder= " Bytetrack"
 video_prev_name="GR77_20200512_111314"
 
 
@@ -34,7 +34,7 @@ def adding_atq(nbr_visit, output_file, labels_file=home_folder+"/videos/labels_w
     """ add atq depending on the labels file provided, and the number of observations we would like to have 
     
     Returns:
-        write in a file: /home/sophie/HMM-Tracking/Bytetrack/videos/"+video_prev_name+"DBN_resut_with_observations.json 
+        write in a file:  Bytetrack/videos/"+video_prev_name+"DBN_resut_with_observations.json 
     """
     
     with open(labels_file) as f:

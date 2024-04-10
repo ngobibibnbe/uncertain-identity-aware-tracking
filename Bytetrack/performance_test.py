@@ -154,9 +154,9 @@ def precise_accuracy_track(label_track, model_track, basic_tracker=False):
                             
 
 
-label_file= "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/labels_with_atq.json"
-#bytetrack_result_file = "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314tracking_result.json"
-track_base = "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/results"
+label_file= "Bytetrack/videos/labels_with_atq.json"
+#bytetrack_result_file = "Bytetrack/videos/GR77_20200512_111314tracking_result.json"
+track_base = "Bytetrack/videos/results"
 
 
 label_track = read_data(label_file)
@@ -190,8 +190,8 @@ def score_for_various_artificial_observations():
             print(i, "ok")
             
             #adding_atq(i, output_file=observation_file, feeder=False, is_it_random =True, video_debut=dt.datetime(2020, 5, 12, 9, 0,0), video_fin= dt.datetime(2020, 5, 12, 9, 10,0) )
-            process_forwad_backward(observation_file,nbr_visit=i, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+str(i)+".json")
-            Hmm_result_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+str(i)+".json"
+            process_forwad_backward(observation_file,nbr_visit=i, json_save_path="Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+str(i)+".json")
+            Hmm_result_file="Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+str(i)+".json"
 
             hmm_track = read_data(Hmm_result_file)
             acc, rec, f1= precise_accuracy_track(label_track, hmm_track)
@@ -201,7 +201,7 @@ def score_for_various_artificial_observations():
             
 
             ####Re_id_part of the work
-            re_id_track_result_file = "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_re_id.json"
+            re_id_track_result_file = "Bytetrack/videos/GR77_20200512_111314DBN_re_id.json"
             tracking_result =produce_re_id_results(track_with_observation_file =observation_file , re_id_track_result_file = re_id_track_result_file )
             re_id_track = read_data(re_id_track_result_file)
             acc, rec, f1= precise_accuracy_track(label_track, re_id_track, basic_tracker=True)
@@ -212,14 +212,14 @@ def score_for_various_artificial_observations():
             hmm_result_with_visits.to_csv('results/accuracy_over_nbr_of_visits_with_track_helping'+str(j)+'.csv')
             re_id_result_with_visits.to_csv('results/accuracy_Re_id_over_nbr_of_visits_with_track_helping'+str(j)+'.csv')
             
-            #put_results_on_video ( tracking_result , save_path="video/re_id_192.mp4" , video_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314.mp4", track_with_observation_file=track_with_observation_file)
+            #put_results_on_video ( tracking_result , save_path="video/re_id_192.mp4" , video_path="Bytetrack/videos/GR77_20200512_111314.mp4", track_with_observation_file=track_with_observation_file)
 
 
 def score_for_model():
     tag = "_model.json"
-    observation_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations"+tag
-    Hmm_result_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag
-    model_result_file = "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/model_yolo_result.json"
+    observation_file="Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations"+tag
+    Hmm_result_file="Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag
+    model_result_file = "Bytetrack/videos/model_yolo_result.json"
     
     adding_atq(0, output_file=observation_file, feeder=False,model=True )
 
@@ -229,7 +229,7 @@ def score_for_model():
     new_row= {'mode result nbr of visits':"feeder", 'accuracy':acc, 'recall':rec, "f1":f1}
     print(new_row)
     
-    process_forwad_backward(observation_file,nbr_visit=0, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag)
+    process_forwad_backward(observation_file,nbr_visit=0, json_save_path="Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag)
     hmm_track = read_data(Hmm_result_file)
     acc, rec, f1= precise_accuracy_track(label_track, hmm_track, basic_tracker=False)
     #acc, rec, f1= precise_accuracy_track(label_track, hmm_track, basic_tracker=True)
@@ -241,13 +241,13 @@ def score_for_model():
     
 def score_for_visit_at_feeder():
     tag = "_feeder_H_0.07.json"
-    observation_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations"+tag
-    Hmm_result_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag
+    observation_file="Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations"+tag
+    Hmm_result_file="Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag
 
-    #observation_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations_feeder_n_0.5.json"
+    #observation_file="Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations_feeder_n_0.5.json"
     
     #adding_atq(0, output_file=observation_file, feeder=True, video_debut=dt.datetime(2020, 5, 12, 9, 0,0), video_fin= dt.datetime(2020, 5, 12, 9, 10,0), )
-    process_forwad_backward(observation_file,nbr_visit=0, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag)
+    process_forwad_backward(observation_file,nbr_visit=0, json_save_path="Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag)
     print("ok")
     
     hmm_track = read_data(Hmm_result_file)
@@ -262,13 +262,13 @@ def score_for_visit_at_feeder():
 
 def score_for_re_id_visit_at_feeder():
     from Bytetrack_re_id import produce_re_id_results 
-    """observation_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations_feeder.json"
+    """observation_file="Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations_feeder.json"
     adding_atq(1, output_file=observation_file, feeder=True, video_debut=dt.datetime(2020, 5, 12, 9, 0,0), video_fin= dt.datetime(2020, 5, 12, 9, 10,0), )
-    process_forwad_backward(observation_file,nbr_visit=1, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json")
+    process_forwad_backward(observation_file,nbr_visit=1, json_save_path="Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json")
     print("ok")"""
     print("we start re-identification")
-    re_id_track_result_file = "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_re_id.json"
-    track_with_observation_file= "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations_feeder.json"
+    re_id_track_result_file = "Bytetrack/videos/GR77_20200512_111314DBN_re_id.json"
+    track_with_observation_file= "Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations_feeder.json"
     tracking_result =produce_re_id_results(track_with_observation_file, re_id_track_result_file)
     re_id_track = read_data(re_id_track_result_file)
     acc, rec, f1= precise_accuracy_track(label_track, re_id_track, basic_tracker=True)

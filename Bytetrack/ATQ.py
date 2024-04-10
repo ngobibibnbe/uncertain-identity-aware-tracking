@@ -13,7 +13,7 @@ from ultralytics import YOLO
 from datetime import timedelta
 
 ###########reading important files and setting the max number of frame ##########
-home_folder= "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
+home_folder= "Bytetrack"
 is_it_random = False
 visits_with_frame=[]
 
@@ -59,7 +59,7 @@ def adding_atq(nbr_visit, output_file, feeder=False,
     """ add atq depending on the labels file provided, and the number of observations we would like to have 
     
     Returns:
-        write in a file: /home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations.json 
+        write in a file: Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations.json 
     """
     
     
@@ -177,7 +177,7 @@ def adding_atq(nbr_visit, output_file, feeder=False,
                                         
                                 observation.append(math.pow(eucledian_distance(feeder_center, track_coin),2))
                                 #l'observation est donné par la softmax sur les distance
-                            ####transforming distances to probabilities  ****sophie peut être remplacer par une gaussienne plus tard
+                            ####transforming distances to probabilities  ****Our peut être remplacer par une gaussienne plus tard
                             observation = np.array(observation)
                             observation = 1/(1+observation)
                             observation = observation/sum(observation)
@@ -204,8 +204,8 @@ def adding_atq(nbr_visit, output_file, feeder=False,
     #############We create the observations using real labels #######
     elif model==True:
         print('ok')
-        video_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314.mp4"
-        model = YOLO('/home/sophie/uncertain-identity-aware-tracking/fairmot/best.pt')  # load a pretrained model (recommended for training)
+        video_path="Bytetrack/videos/GR77_20200512_111314.mp4"
+        model = YOLO('fairmot/best.pt')  # load a pretrained model (recommended for training)
         cap = cv2.VideoCapture(video_path)
         
         def add__model_observations():
@@ -257,7 +257,7 @@ def adding_atq(nbr_visit, output_file, feeder=False,
                 
                 
                 frame_id += 1
-            with open('/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/model_yolo_result.json', 'w') as file:
+            with open('Bytetrack/videos/model_yolo_result.json', 'w') as file:
                 json.dump(model_tracking, file)
         add__model_observations()        
         cap.release()
@@ -308,7 +308,7 @@ def adding_atq(nbr_visit, output_file, feeder=False,
                                 track_coin=coin
                         observation.append(math.exp(eucledian_distance(feeder_center, track_coin)/10))
                         #l'observation est donné par la softmax sur les distance
-                    ####transforming distances to probabilities  ****sophie peut être remplacer par une gaussienne plus tard
+                    ####transforming distances to probabilities  ****Our peut être remplacer par une gaussienne plus tard
                     observation = np.array(observation)
                     observation = 1/(1+observation)
                     observation = observation/sum(observation)
