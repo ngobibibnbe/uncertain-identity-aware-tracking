@@ -109,27 +109,16 @@ def adding_atq(nbr_visit, output_file, feeder=False,
     
     if feeder==True:
         water_visits=pd.read_excel(water_file)
-        feeder_visits=pd.read_excel(feeder_file)
-        #feeder_visits = water_visits
-        #feeder_visits["debut"] = feeder_visits["Date_fin"].combine(feeder_visits["Tfin"], lambda d, t: pd.datetime.combine(d, t))
-        #feeder_visits['debut'] = [feeder_visits['debut'][idx] - timedelta(seconds=feeder_visits['Duree_s'][idx]) for idx in feeder_visits.index ]
-        
-        
-        
-        # feeder_visits['debut']  = pd.to_datetime (feeder_data['Tdebut'],  format='%H:%M:%S'  ).dt.strftime('%H:%M')
-                
+        """feeder_visits=pd.read_excel(feeder_file)
+        feeder_visits["debut"] = feeder_visits["Date_fin"].combine(feeder_visits["Tfin"], lambda d, t: pd.datetime.combine(d, t))
+        feeder_visits['debut'] = [feeder_visits['debut'][idx] - timedelta(seconds=feeder_visits['Duree_s'][idx]) for idx in feeder_visits.index ]
+        """
         water_center=[625,70]
         feeder_center=[90, 102]
 
         #on selectionne les visites qui sont sensées être dans la vidéo
-        
-        water_visits = water_visits.loc[(water_visits["debut"]>video_debut ) & (water_visits["debut"]<video_fin) ]
-        water_visits.to_csv("test.csv")
-
-        """feeder_visits['fin'] =  pd.to_datetime(pd.to_datetime (feeder_visits['Date_fin']  ).dt.strftime('%Y-%m-%d') + " "+ pd.to_datetime (feeder_visits['Tfin'],  format='%H:%M:%S' ).dt.strftime('%H:%M:%S') )
-        feeder_visits["debut"] = [pd.to_datetime(feeder_visits['fin'])[idx] - timedelta(seconds=int(feeder_visits['Duree_s'][idx]))   for idx in feeder_visits.index ]
-        feeder_visits["animal_num"]= feeder_visits ["Animal"]
-        feeder_visits = feeder_visits.loc[(feeder_visits["debut"]>video_debut) & (feeder_visits["debut"]<video_fin) ]"""
+        water_visits = water_visits.loc[(water_visits["debut"]>dt.datetime(2020, 5, 12, 9, 0,0)) & (water_visits["debut"]<dt.datetime(2020, 5, 12, 9, 9,59)) ]
+        #feeder_visits = feeder_visits.loc[(feeder_visits["debut"]>dt.datetime(2020, 5, 12, 9, 0,0)) & (feeder_visits["debut"]<dt.datetime(2020, 5, 12, 9, 9,59)) ]
         #print(len(water_visits), len(feeder_visits))
         
         
@@ -146,9 +135,8 @@ def adding_atq(nbr_visit, output_file, feeder=False,
                 #d'identités quand deux animaux viennent bagarer à la mangeoire
                 
                 # je rajoute +50 frame de marge entre les debuts et fin de visites 
-                frame_id_debut = int((debut-video_debut).total_seconds()*24.63666666666 +100) # +2 secondes
-                frame_id_fin =  min(frame_id_debut+2, int((fin-video_debut).total_seconds()*24.63666666666 - 100) )#-2 secondes 
-                #vu que le feeder a un problème on prend une marge de 2 secondes au debut et à la fin de la visite pour donner plus de chance au modèle d'avoir le bon animal 
+                frame_id_debut = int((debut-dt.datetime(2020, 5, 12, 9, 0,0)).total_seconds()*24.63666666666)+100 # +2 secondes
+                frame_id_fin =  int((fin-dt.datetime(2020, 5, 12, 9, 0,0)).total_seconds()*24.63666666666)-100 #-2 secondes 
                 frame_id=frame_id_debut+1
                 flag=False
                 while frame_id<frame_id_fin: 
@@ -181,7 +169,7 @@ def adding_atq(nbr_visit, output_file, feeder=False,
                             observation = np.array(observation)
                             observation = 1/(1+observation)
                             observation = observation/sum(observation)
-                            if max(observation)>=0.0: #no more useful to be removed 
+                            if max(observation)>=0.5:
                                 dbn_infos[str(frame_id)]["observation"][atq]=observation
                                 if is_it_random ==True and feeder==False: 
                                     if random.choice( [False, False, False, True] ) ==True:
@@ -197,7 +185,7 @@ def adding_atq(nbr_visit, output_file, feeder=False,
                 if flag==True:
                     nbr_of_visits+=1
             print("nbr of rewarded visits",nbr_of_visits)
-        #add_observations(feeder_visits, feeder_center)
+        add_observations(feeder_visits, feeder_center)
         add_observations(water_visits, water_center)
 
     #####################################################################################################

@@ -14,7 +14,11 @@ def produce_re_id_results(track_with_observation_file, re_id_track_result_file):
         data = json.load(json_file)
         
     tracking_result={}
+<<<<<<< HEAD
     observation_infos =pd.DataFrame(columns=["frame_id", "observed"])
+=======
+    observation_infos =[]
+>>>>>>> origin/main
     matching={}
     corrected = {}
     #pour chaque ligne avec une observation garder le temps, atq, le track_id avec le max de chance d'être l'atq
@@ -25,11 +29,17 @@ def produce_re_id_results(track_with_observation_file, re_id_track_result_file):
                 for atq in frame_infos["observation"].keys():
                     max_track_id =np.argmax(np.array(frame_infos["observation"][atq]))
                     track_id = frame_infos["current"][max_track_id]['track_id']
+<<<<<<< HEAD
                     
                     observation_infos = pd.concat([observation_infos, pd.DataFrame([{"frame_id":frame_id, "atq":atq, "track_id":track_id }])], ignore_index=True)
                     if atq in matching.keys() : 
                         if matching[atq]!=track_id:
                             trompe_avec= matching[atq]
+=======
+                    observation_infos.append((frame_id,atq,track_id))
+                    if atq in matching.keys() : 
+                        if matching[atq]!=track_id:
+>>>>>>> origin/main
                             corrected[track_id] = matching[atq]
                             corrected[matching[atq]] = track_id
                             
@@ -58,14 +68,22 @@ def produce_re_id_results(track_with_observation_file, re_id_track_result_file):
 
 
 
+<<<<<<< HEAD
 def put_results_on_video(track, video_path, save_path):
+=======
+def put_results_on_video(track, video_path, save_path, track_with_observation_file= track_with_observation_file):
+>>>>>>> origin/main
     import cv2 
     cap = cv2.VideoCapture(video_path)
     width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)  # float
     height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)  # float
     fps = cap.get(cv2.CAP_PROP_FPS)
     
+<<<<<<< HEAD
     vid_writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*"mp4v"), 30, (int(width), int(height)))     
+=======
+    vid_writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*"mp4v"), 1, (int(width), int(height)))     
+>>>>>>> origin/main
     # Center coordinates
     center_coordinates = (625, 70)
     # Radius of circle
@@ -76,8 +94,13 @@ def put_results_on_video(track, video_path, save_path):
     thickness = 2
     
     
+<<<<<<< HEAD
     """with open(track_with_observation_file, 'r') as json_file:
         data = json.load(json_file)"""
+=======
+    with open(track_with_observation_file, 'r') as json_file:
+        data = json.load(json_file)
+>>>>>>> origin/main
         
     ret_val, frame = cap.read()
     frame_id=1
@@ -89,11 +112,19 @@ def put_results_on_video(track, video_path, save_path):
         frame = cv2.circle(frame, center_coordinates, radius, color, thickness)
         frame = cv2.circle(frame, (90,102), radius, color, thickness)
         #addd
+<<<<<<< HEAD
         if str(frame_id) in track.keys():
             
             if (frame_id!="0") :
                 cv2.putText(frame, str(frame_id),(90+580, 20),0, 5e-3 * 200, (0,255,0),2)
                 for track_id,tlwh in track[str(frame_id)].items():
+=======
+        if frame_id in track.keys():
+            
+            if (frame_id!="0") :
+                cv2.putText(frame, str(frame_id),(90+580, 20),0, 5e-3 * 200, (0,255,0),2)
+                for track_id,tlwh in track[frame_id].items():
+>>>>>>> origin/main
                     
                     tid= str(track_id)   
                     cv2.rectangle(frame, (int(tlwh[0]), int(tlwh[1])), (int(tlwh[0])+int(tlwh[2]), int(tlwh[1])+int(tlwh[3])) ,(255,255,255), 2)
@@ -157,5 +188,6 @@ label = read_data(label_file)
 #put_results_on_video ( label , save_path="label_video.mp4" , video_path=video_path, track_with_observation_file=track_with_observation_file)
 """
 
+<<<<<<< HEAD
 tracking_result =produce_re_id_results(track_with_observation_file, re_id_track_result_file)
 """put_results_on_video ( tracking_result , save_path="Bytetrack/videos/visualize/re_id_feeder_video.mp4" , video_path=video_path)"""

@@ -9,6 +9,7 @@ import json
 import copy
 #!pip install opencv-python
 import cv2
+<<<<<<< HEAD
 POWERFULNESS=1 #inverse of power of older observations
 hungarian = True
 confidence_threshold = 0.067  #### Our mod 
@@ -201,19 +202,31 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
     ##################################Adding ATQ from the HMM #########################
     #Atq are added by considering the animal on which the confidence on an identity was greater than confidence_threshold
     
+<<<<<<< HEAD
     """with open("data.json", 'w') as outfile:
+=======
+    with open("data.json", 'w') as outfile:
+>>>>>>> origin/main
         json.dump(data, outfile)
     
     with open("L.json", 'w') as outfile:
         json.dump(L, outfile)
+<<<<<<< HEAD
         #exit(0)
+=======
+        #exit(0)"""
+>>>>>>> origin/main
         
     with open("data.json") as f:
             data = json.load(f)  
     
     with open("L.json") as f:
             L = json.load(f) 
+<<<<<<< HEAD
     """
+=======
+            
+>>>>>>> origin/main
     class NumpyEncoder(json.JSONEncoder):
         def default(self, obj):
             if isinstance(obj, np.integer):
