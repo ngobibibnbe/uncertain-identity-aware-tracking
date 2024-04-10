@@ -9,7 +9,7 @@ The dataset is available in the dataset folder
 ### Files 
 
 [Bytetrack](Bytetrack): contains code for getting the tracker transition matrix, add observations, and perform the HMM Tracking 
-[Bytetrack/forwardBackward.py](forwardBackward.py): contains code  performing the HMM Tracking 
+[forwardBackward.py](Bytetrack/forwardBackward.py): contains code  performing the HMM Tracking 
 
 ### Requirements
 
