@@ -7,9 +7,14 @@ evaluation/trash
 Bytetrack/YOLOX_outputs
 Bytetrack/Untitled2.ipynb
 Bytetrack/.ipynb_checkpoints
+<<<<<<< HEAD
 Bytetrack/trash/
 
 #*.xlsx
+=======
+
+*.xlsx
+>>>>>>> origin/main
 *.pickle
 *.h5
 #*.csv
