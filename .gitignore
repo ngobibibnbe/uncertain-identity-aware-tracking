@@ -1,5 +1,8 @@
+
 *.mp4
+!dataset
 Psota_data/
+fairmot/
 evaluation/
 evaluation/annotations
 evaluation/pig_tracking_dataset
@@ -8,7 +11,7 @@ Bytetrack/YOLOX_outputs
 Bytetrack/Untitled2.ipynb
 Bytetrack/.ipynb_checkpoints
 Bytetrack/trash/
-
+trash/
 #*.xlsx
 *.pickle
 *.h5
