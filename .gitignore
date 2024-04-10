@@ -11,6 +11,7 @@ Bytetrack/Untitled2.ipynb
 Bytetrack/.ipynb_checkpoints
 Bytetrack/trash/
 trash/
+tmp_out/
 #*.xlsx
 *.pickle
 *.h5
