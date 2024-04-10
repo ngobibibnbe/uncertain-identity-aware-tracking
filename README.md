@@ -10,6 +10,7 @@ The dataset is available in the dataset folder
 
 [Bytetrack](Bytetrack): contains code for getting the tracker transition matrix, add observations, and perform the HMM Tracking 
 [forwardBackward.py](Bytetrack/forwardBackward.py): contains code  performing the HMM Tracking 
+[ATQ.py](Bytetrack/ATQ.py): contains code  for adding Identifier informations, could be feeder or artificial data for the time
 
 ### Requirements
 
