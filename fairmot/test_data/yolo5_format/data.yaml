@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 15
+names: ['object_13', 'object_15', 'object_4', 'object_4804-0', 'object_4807-0', 'object_4808-0', 'object_4809-0', 'object_4810-0', 'object_4811-0', 'object_4812-0', 'object_4814-0', 'object_4815-0', 'object_4817-0', 'object_4818-0', 'object_7']
+
+roboflow:
+  workspace: ngo-bibinbe-anne-marthe-sophie
+  project: pig_dataset-wpllo
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/ngo-bibinbe-anne-marthe-sophie/pig_dataset-wpllo/dataset/1

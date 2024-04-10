@@ -205,7 +205,7 @@ def adding_atq(nbr_visit, output_file, feeder=False,
     elif model==True:
         print('ok')
         video_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314.mp4"
-        model = YOLO('/home/sophie/uncertain-identity-aware-tracking/fairmot/test_data/best.pt')  # load a pretrained model (recommended for training)
+        model = YOLO('/home/sophie/uncertain-identity-aware-tracking/fairmot/best.pt')  # load a pretrained model (recommended for training)
         cap = cv2.VideoCapture(video_path)
         
         def add__model_observations():
@@ -230,12 +230,12 @@ def adding_atq(nbr_visit, output_file, feeder=False,
                     for cl_idx, cl in enumerate(cls):
                         cl =names[int(cl)]
                         cl = float (cl.split("object_")[-1].split('-')[0])
-                        if cl>4800:
+                        if cl>4800 and conf[cl_idx]>0.0:
                             cl=str(cl)
                             max_one= 0
                             max_id =None
                             for track_idx, track in enumerate(dbn_infos[str(frame_id)]["current"]):
-                                if iou(list(boxes[cl_idx]),track["location"])>0.5:
+                                if iou(list(boxes[cl_idx]),track["location"])>max_one:
                                     max_id = track_idx
                                     max_one = iou(list(boxes[cl_idx]),track["location"])
                             if cl not in dbn_infos[str(frame_id)]["observation"].keys():

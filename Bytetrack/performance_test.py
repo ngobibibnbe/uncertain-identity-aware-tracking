@@ -113,42 +113,27 @@ def precise_accuracy_track(label_track, model_track, basic_tracker=False):
     if basic_tracker==True:
         label_tracki, matching = match_track_and_atq(label_track, model_track)
     else:
-
-        matching= {k:k for k in model_track[1].keys() if  'identities' not in k and float(k)>4800}
+        matching= {k:k for k in label_track[0].keys() if  'identities' not in k and float(k)>4800}
     for frame_id in label_track.keys() :
         if frame_id in model_track.keys() :
             nbr_frame+=1
             matching_frame={}
-            matrice=np.zeros((len( model_track[frame_id].keys()),len(label_track[frame_id].keys())))
-            
-            for model_idx, model_atq in enumerate(model_track[frame_id].keys() ):
-                    model_box = model_track[frame_id][model_atq]
+            for model_atq, model_box in model_track[frame_id].items() :
                     max_iou=0
                     atq_matching_model =None
-                    for  label_idx,label_atq  in enumerate(label_track[frame_id].keys()):
-                        label_box = label_track[frame_id][label_atq]
+                    for  label_atq, label_box in label_track[frame_id].items():
                         if  label_atq!="observed" and model_atq!="observed" :#fix the problem with the obseved on the label 
                             tmp = iou(model_box["rectangle"], label_box["rectangle"])
-                            matrice[model_idx][label_idx] =tmp
                             if tmp>max_iou:
                                 max_iou =tmp
                                 atq_matching_model = label_atq
-            
-            row_ind, col_ind = linear_sum_assignment(matrice)
-            label_atqs= list(label_track[frame_id].keys())
-            model_atqs= list(model_track[frame_id].keys() )
-            for model_idx in row_ind :
-                model_atq = model_atqs[model_idx]
-                if model_atq in matching.keys():
-                    matching_frame[matching[model_atq]] = label_atqs[col_ind[model_idx]] 
-
-
-            #if basic_tracker==True:
-            """if model_atq in matching.keys(): #ca c'est pour les modèles qui crèent trop de nouvelles identités
-                    matching_frame[matching[model_atq] ]=atq_matching_model """
-            """else:
-                matching_frame[model_atq ]=atq_matching_model """
-                        
+                                
+                    #if basic_tracker==True:
+                    if model_atq in matching.keys(): #ca c'est pour les modèles qui crèent trop de nouvelles identités
+                            matching_frame[matching[model_atq] ]=atq_matching_model 
+                    """else:
+                        matching_frame[model_atq ]=atq_matching_model """
+                                
             filtered ={key:value for key,value in matching_frame.items() if value==key }
             if len(matching_frame.keys())!=0:
                 nbr_frame_acc+=1
@@ -236,7 +221,7 @@ def score_for_model():
     Hmm_result_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag
     model_result_file = "/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/model_yolo_result.json"
     
-    #adding_atq(0, output_file=observation_file, feeder=False,model=True )
+    adding_atq(0, output_file=observation_file, feeder=False,model=True )
 
     model_result = read_data(model_result_file)
     acc, rec, f1= precise_accuracy_track(label_track, model_result, basic_tracker=False)
@@ -262,7 +247,7 @@ def score_for_visit_at_feeder():
     #observation_file="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations_feeder_n_0.5.json"
     
     #adding_atq(0, output_file=observation_file, feeder=True, video_debut=dt.datetime(2020, 5, 12, 9, 0,0), video_fin= dt.datetime(2020, 5, 12, 9, 10,0), )
-    #process_forwad_backward(observation_file,nbr_visit=0, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag)
+    process_forwad_backward(observation_file,nbr_visit=0, json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag)
     print("ok")
     
     hmm_track = read_data(Hmm_result_file)
@@ -297,7 +282,7 @@ def score_for_re_id_visit_at_feeder():
 
 import argparse
 if __name__=="__main__":
-    score_for_visit_at_feeder()
+    score_for_model()
     parser = argparse.ArgumentParser(description="Arguments for the performance assessement")
     parser.add_argument("--mode", type=str, help="Name of the mode.")
     args = parser.parse_args()
