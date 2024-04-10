@@ -27,7 +27,10 @@ performance_test.py feeder
 # To benchmark the models we tested previously you can do 
 performance_test.py tracker_test
 
-# To visualize MOTA, IDF1, number of switches etc. you can launch the notebook: Bytetrack/MOT_metric_evaluation/tracking_evaluation.ipynb
+# To visualize MOTA, IDF1, number of switches etc. 
+you can launch the notebook: Bytetrack/MOT_metric_evaluation/tracking_evaluation.ipynb
+
+# Dataset 
 
 The dataset is available in the dataset folder
 
