@@ -3,8 +3,11 @@
 
 # Requirements
 pip install -r Bytetrack_requirements.txt
+
 pip3 install cython; pip3 install 'git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI'
+
 pip3 install cython_bbox
+
 pip install -r requirements.txt
 
 # Tracker matching 
@@ -25,20 +28,7 @@ performance_test.py tracker_test
 
 # To visualize MOTA, IDF1, number of switches etc. you can launch the notebook: Bytetrack/MOT_metric_evaluation/tracking_evaluation.ipynb
 
-#details of further analysis are provided on our github 
-
-
-
-To get comparison between all the trackers and our proposed method (******maybe it's necessary to add external information to bytetrack at least in a basic way). 
-
-
-
-The dataset is available at : **** 
-to find deleted file on zfs make cd /home/sophie cd .zfs/snapshot then ls -a 
-
-
-papier: 
-definir la reidentification dans le papier et refaire la reidentification car pour la reidentification le f1-score 
+The dataset is available in the dataset folder
 
 
 
