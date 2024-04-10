@@ -7,14 +7,34 @@ import cv2
 import math
 import random
 #random.seed(42)
+import xml.etree.ElementTree as ET
+from ultralytics import YOLO
 
 from datetime import timedelta
 
 ###########reading important files and setting the max number of frame ##########
-home_folder= "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
+home_folder= "Bytetrack"
+is_it_random = False
+visits_with_frame=[]
 
-
-
+def iou (boxA,boxB):
+    boxA=[boxA[0],boxA[1],boxA[0]+boxA[2],boxA[1]+boxA[3]]
+    boxB=[boxB[0],boxA[1],boxB[0]+boxB[2],boxB[1]+boxB[3]]
+    xA = max(boxA[0], boxB[0])
+    yA = max(boxA[1], boxB[1])
+    xB = min(boxA[2], boxB[2])
+    yB = min(boxA[3], boxB[3])
+    # compute the area of intersection rectangle
+    interArea = max(0, xB - xA + 1) * max(0, yB - yA + 1)
+    # compute the area of both the prediction and ground-truth
+    # rectangles
+    boxAArea = abs((boxA[2] - boxA[0] + 1) * (boxA[3] - boxA[1] + 1))
+    boxBArea = abs((boxB[2] - boxB[0] + 1) * (boxB[3] - boxB[1] + 1))
+    # compute the intersection over union by taking the intersection
+    # area and dividing it by the sum of prediction + ground-truth
+    # areas - the interesection area
+    iou = interArea / float(boxAArea + boxBArea - interArea)
+    return iou  #np.linalg.norm(np.array([float(track[0]), float(track[1])+float(track[3])/2])-np.array([600,17.5]))
 
 def adding_atq(nbr_visit, output_file, feeder=False, 
                video_debut=dt.datetime(2020, 5, 12, 9, 0,0),
@@ -25,7 +45,7 @@ def adding_atq(nbr_visit, output_file, feeder=False,
                 labels_file=home_folder+"/videos/labels_with_atq.json",
                 feeder_file=home_folder+"/videos/donnees_insentec_lot77_parc6.xlsx",
                 water_file=home_folder+"/videos/eau_parc6.xlsx",
-               is_it_random = False):
+               is_it_random = False, model=True):
    
 
     with open(track_file) as f:
@@ -39,7 +59,7 @@ def adding_atq(nbr_visit, output_file, feeder=False,
     """ add atq depending on the labels file provided, and the number of observations we would like to have 
     
     Returns:
-        write in a file: /home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations.json 
+        write in a file: Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations.json 
     """
     
     
@@ -145,7 +165,7 @@ def adding_atq(nbr_visit, output_file, feeder=False,
                                         
                                 observation.append(math.pow(eucledian_distance(feeder_center, track_coin),2))
                                 #l'observation est donné par la softmax sur les distance
-                            ####transforming distances to probabilities  ****sophie peut être remplacer par une gaussienne plus tard
+                            ####transforming distances to probabilities  ****Our peut être remplacer par une gaussienne plus tard
                             observation = np.array(observation)
                             observation = 1/(1+observation)
                             observation = observation/sum(observation)
@@ -170,7 +190,65 @@ def adding_atq(nbr_visit, output_file, feeder=False,
 
     #####################################################################################################
     #############We create the observations using real labels #######
-
+    elif model==True:
+        print('ok')
+        video_path="Bytetrack/videos/GR77_20200512_111314.mp4"
+        model = YOLO('fairmot/best.pt')  # load a pretrained model (recommended for training)
+        cap = cv2.VideoCapture(video_path)
+        
+        def add__model_observations():
+            frame_id = 0
+            model_tracking={}
+            while cap.isOpened():
+                model_tracking[frame_id]={}
+                ret, frame = cap.read()
+                if not ret:
+                    break
+                # Run detection
+                cv2.imwrite('tmp.jpg', frame)
+                results = model('tmp.jpg')  # predict on an image
+                #print(len(results))
+                names = results[0].names
+                for result in results:
+                    boxes = result.boxes  # Boxes object for bounding box outputs
+                    cls = boxes.cls  # Masks object for segmentation masks outputs
+                    conf = boxes.conf  # Keypoints object for pose outputs
+                    boxes = boxes.xywh  # Probs object for classification outputs
+                    #print('probs', boxes)
+                    for cl_idx, cl in enumerate(cls):
+                        cl =names[int(cl)]
+                        cl = float (cl.split("object_")[-1].split('-')[0])
+                        if cl>4800 and conf[cl_idx]>0.0:
+                            cl=str(cl)
+                            max_one= 0
+                            max_id =None
+                            for track_idx, track in enumerate(dbn_infos[str(frame_id)]["current"]):
+                                if iou(list(boxes[cl_idx]),track["location"])>max_one:
+                                    max_id = track_idx
+                                    max_one = iou(list(boxes[cl_idx]),track["location"])
+                            if cl not in dbn_infos[str(frame_id)]["observation"].keys():
+                                dbn_infos[str(frame_id)]["observation"][cl]=np.zeros((len(dbn_infos[str(frame_id)]["current"]),1)).tolist()
+                            if max_id is not None:
+                                dbn_infos[str(frame_id)]["observation"][cl][max_id].append(conf[cl_idx].cpu() )
+                
+                #normaliser les observations et les ramener en une raw
+                observations= dbn_infos[str(frame_id)]["observation"]
+                detections= dbn_infos[str(frame_id)]["current"]
+                for cl  in observations.keys():
+                    for track_idx in range(len(observations[cl])):
+                        tmp=np.mean(np.array(observations[cl][track_idx]))
+                        if tmp==0:
+                            tmp=0.01
+                        observations[cl][track_idx] =tmp
+                    model_tracking[frame_id][cl]=detections[observations[cl].index(max(observations[cl]))]["location"]
+                dbn_infos[str(frame_id)]["observation"] =observations
+                
+                
+                frame_id += 1
+            with open('Bytetrack/videos/model_yolo_result.json', 'w') as file:
+                json.dump(model_tracking, file)
+        add__model_observations()        
+        cap.release()
     
     
     #### when we do random selection 
@@ -218,7 +296,7 @@ def adding_atq(nbr_visit, output_file, feeder=False,
                                 track_coin=coin
                         observation.append(math.exp(eucledian_distance(feeder_center, track_coin)/10))
                         #l'observation est donné par la softmax sur les distance
-                    ####transforming distances to probabilities  ****sophie peut être remplacer par une gaussienne plus tard
+                    ####transforming distances to probabilities  ****Our peut être remplacer par une gaussienne plus tard
                     observation = np.array(observation)
                     observation = 1/(1+observation)
                     observation = observation/sum(observation)
@@ -291,5 +369,5 @@ def adding_atq(nbr_visit, output_file, feeder=False,
         #print("the results txt files are #printed in", outfile)
         
         
-        
+#adding_atq(nbr_visit=0,output_file='test_model_observation.json')
 """adding_atq(nbr_visit=1, feeder=True, output_file="test2_to_del", labels_file=home_folder+"/videos/labels_with_atq.json")"""

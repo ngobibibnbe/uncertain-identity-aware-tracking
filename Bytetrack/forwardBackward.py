@@ -12,29 +12,20 @@ import cv2
 <<<<<<< HEAD
 POWERFULNESS=1 #inverse of power of older observations
 hungarian = True
-confidence_threshold = 0.067  #### sophie mod 
+confidence_threshold = 0.067  #### Our mod 
 confidence_on_hmm_choice=11  #1 equivaut à une normalisation basique #1.5
 
-=======
-POWERFULNESS=2
-hungarian = False
->>>>>>> origin/main
-Home_folder=  "/home/sophie/uncertain-identity-aware-tracking/Bytetrack"
+Home_folder=  "Bytetrack"
 #en supposant que les observations sont independantes la normalisation à 1 des alpha et beta est acceptable 
 #la solution qui suivra sera de choisir l'identité la plus acceptée au niveau de L et de l'affecté à la localisation identifié dans le tracking 
 
 
-def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result.json", video_path="/home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314.mp4"):
-<<<<<<< HEAD
-=======
-    confidence_threshold = 0.3  #### sophie mod 
-    confidence_on_hmm_choice=2#1.5
->>>>>>> origin/main
+def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path="Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result.json", video_path="Bytetrack/videos/GR77_20200512_111314.mp4"):
     """_summary_
     parameter: confidence_threshold
 
     Returns:
-        write a video with ATQ and put the results in the file /home/sophie/uncertain-identity-aware-tracking/Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_resut.json
+        write a video with ATQ and put the results in the file Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_resut.json
     """
     import numpy as np 
     def softmax(x):
@@ -126,7 +117,7 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
                 for j in range(a["t="+str(V[t+1])].shape[0]):
                     beta[V[t]][j] = (tmp_beta * b["t="+str(V[t + 1])]).dot(a["t="+str(V[t+1])][j, :])
 
-                beta[V[t]]=softmax(beta[V[t]])#sophie mod  beta[V[t]]/beta[V[t]].sum() #"""
+                beta[V[t]]=softmax(beta[V[t]])#Our mod  beta[V[t]]/beta[V[t]].sum() #"""
 
 
         return beta
@@ -282,6 +273,8 @@ def process_forwad_backward(track_with_observation,nbr_visit="", json_save_path=
         if hungarian== True:
             #######Hungarian version whICH seems to be ok   
             try:
+                #to avoid error in hungarian assignement we will replace nan by 0 those nan occures when the object is not present in one of the previous or next frame this is output in the forward backward process
+                matrice =  np.nan_to_num(matrice, nan=0)
                 row_ind, col_ind = linear_sum_assignment(-matrice) #since the function is looking for the assignement minimizing the sum, we put the opposite of the propabiliy in cells 
             except:
                 print("xeption on this matrix")#,t,identities_list[3], L[identities_list[3]]["t="+str(t)], matrice)            
