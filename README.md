@@ -55,10 +55,13 @@ performance_test.py feeder
 performance_test.py tracker_test
 ```
 
+
 **To visualize MOTA, IDF1, number of switches etc.**
 ```bash
 you can launch the notebook: Bytetrack/MOT_metric_evaluation/tracking_evaluation.ipynb
 ```
+
+![Exemple of tracker identity switch fixed by the HMM based tracker](evaluations/ezgif-4-d4907375f5-ezgif.com-crop.gif)
 
 
 
