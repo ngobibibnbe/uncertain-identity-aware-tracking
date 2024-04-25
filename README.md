@@ -61,6 +61,8 @@ performance_test.py tracker_test
 you can launch the notebook: Bytetrack/MOT_metric_evaluation/tracking_evaluation.ipynb
 
 
+**Exemple where the HMM based Tracking Framework fix the tracker identity switch**
+
 <center>
 
 <img src="evaluations/ezgif-4-d4907375f5-ezgif.com-crop.gif" width="300">
