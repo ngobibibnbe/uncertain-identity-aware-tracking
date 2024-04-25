@@ -57,9 +57,9 @@ performance_test.py tracker_test
 
 
 **To visualize MOTA, IDF1, number of switches etc.**
-```bash
+
 you can launch the notebook: Bytetrack/MOT_metric_evaluation/tracking_evaluation.ipynb
-```
+
 
 <center>
 
