@@ -60,8 +60,15 @@ performance_test.py tracker_test
 ```bash
 you can launch the notebook: Bytetrack/MOT_metric_evaluation/tracking_evaluation.ipynb
 ```
-![Exemple of tracker identity switch fixed by the HMM based tracker](evaluations/ezgif-4-d4907375f5-ezgif.com-crop.gif)
+
+<center>
+
+<img src="evaluations/ezgif-4-d4907375f5-ezgif.com-crop.gif" width="300">
+
 *<small> Exemple of tracker identity switch fixed by the HMM based tracking framework for the pig with RWID 4818 </small>*
+
+</center>
+
 
 
 
