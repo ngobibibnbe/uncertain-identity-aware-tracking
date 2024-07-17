@@ -110,7 +110,6 @@ def precise_accuracy_track(label_track, model_track, basic_tracker=False):
                 if len(matching.keys())== len(label_track[frame_id].keys()):
                     break
             return label_track_only_concerned , {value:key for key, value in matching.items() if float(key)>4800}
-<<<<<<< HEAD
     if basic_tracker==True:
         label_tracki, matching = match_track_and_atq(label_track, model_track)
     else:
@@ -122,13 +121,10 @@ def precise_accuracy_track(label_track, model_track, basic_tracker=False):
             for model_atq, model_box in model_track[frame_id].items() :
                     max_iou=0
                     atq_matching_model =None
-=======
->>>>>>> origin/main
                     for  label_atq, label_box in label_track[frame_id].items():
                         if  label_atq!="observed" and model_atq!="observed" :#fix the problem with the obseved on the label 
                             tmp = iou(model_box["rectangle"], label_box["rectangle"])
                             if tmp>max_iou:
-<<<<<<< HEAD
                                 max_iou =tmp
                                 atq_matching_model = label_atq
                                 
@@ -158,9 +154,9 @@ def precise_accuracy_track(label_track, model_track, basic_tracker=False):
                             
 
 
-label_file= "Bytetrack/videos/labels_with_atq.json"
-#bytetrack_result_file = "Bytetrack/videos/GR77_20200512_111314tracking_result.json"
-track_base = "Bytetrack/videos/results"
+label_file= "videos/labels_with_atq.json"
+#bytetrack_result_file = "videos/GR77_20200512_111314tracking_result.json"
+track_base = "videos/results"
 
 
 label_track = read_data(label_file)
@@ -168,11 +164,6 @@ label_track = read_data(label_file)
 import pandas as pd 
 from ATQ import adding_atq
 from forwardBackward import process_forwad_backward
-<<<<<<< HEAD
-=======
-
-
->>>>>>> origin/main
 import os 
 import time 
 
@@ -191,7 +182,6 @@ def score_for_various_artificial_observations():
     from Bytetrack_re_id import put_results_on_video
     hmm_result_with_visits=pd.DataFrame(columns=["nbr of visits", "accuracy", "recall", "f1"])
     re_id_result_with_visits=pd.DataFrame(columns=["nbr of visits", "accuracy", "recall", "f1"])
-<<<<<<< HEAD
 
     #add error bar here 
     for j in range(0,20):
@@ -200,8 +190,8 @@ def score_for_various_artificial_observations():
             print(i, "ok")
             
             #adding_atq(i, output_file=observation_file, feeder=False, is_it_random =True, video_debut=dt.datetime(2020, 5, 12, 9, 0,0), video_fin= dt.datetime(2020, 5, 12, 9, 10,0) )
-            process_forwad_backward(observation_file,nbr_visit=i, json_save_path="Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+str(i)+".json")
-            Hmm_result_file="Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+str(i)+".json"
+            process_forwad_backward(observation_file,nbr_visit=i, json_save_path="videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+str(i)+".json")
+            Hmm_result_file="videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+str(i)+".json"
 
             hmm_track = read_data(Hmm_result_file)
             acc, rec, f1= precise_accuracy_track(label_track, hmm_track)
@@ -211,7 +201,7 @@ def score_for_various_artificial_observations():
             
 
             ####Re_id_part of the work
-            re_id_track_result_file = "Bytetrack/videos/GR77_20200512_111314DBN_re_id.json"
+            re_id_track_result_file = "videos/GR77_20200512_111314DBN_re_id.json"
             tracking_result =produce_re_id_results(track_with_observation_file =observation_file , re_id_track_result_file = re_id_track_result_file )
             re_id_track = read_data(re_id_track_result_file)
             acc, rec, f1= precise_accuracy_track(label_track, re_id_track, basic_tracker=True)
@@ -222,14 +212,14 @@ def score_for_various_artificial_observations():
             hmm_result_with_visits.to_csv('results/accuracy_over_nbr_of_visits_with_track_helping'+str(j)+'.csv')
             re_id_result_with_visits.to_csv('results/accuracy_Re_id_over_nbr_of_visits_with_track_helping'+str(j)+'.csv')
             
-            #put_results_on_video ( tracking_result , save_path="video/re_id_192.mp4" , video_path="Bytetrack/videos/GR77_20200512_111314.mp4", track_with_observation_file=track_with_observation_file)
+            #put_results_on_video ( tracking_result , save_path="video/re_id_192.mp4" , video_path="videos/GR77_20200512_111314.mp4", track_with_observation_file=track_with_observation_file)
 
 
 def score_for_model():
     tag = "_model.json"
-    observation_file="Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations"+tag
-    Hmm_result_file="Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag
-    model_result_file = "Bytetrack/videos/model_yolo_result.json"
+    observation_file="videos/GR77_20200512_111314DBN_result_with_observations"+tag
+    Hmm_result_file="videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag
+    model_result_file = "videos/model_yolo_result.json"
     
     adding_atq(0, output_file=observation_file, feeder=False,model=True )
 
@@ -239,7 +229,7 @@ def score_for_model():
     new_row= {'mode result nbr of visits':"feeder", 'accuracy':acc, 'recall':rec, "f1":f1}
     print(new_row)
     
-    process_forwad_backward(observation_file,nbr_visit=0, json_save_path="Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag)
+    process_forwad_backward(observation_file,nbr_visit=0, json_save_path="videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag)
     hmm_track = read_data(Hmm_result_file)
     acc, rec, f1= precise_accuracy_track(label_track, hmm_track, basic_tracker=False)
     #acc, rec, f1= precise_accuracy_track(label_track, hmm_track, basic_tracker=True)
@@ -250,15 +240,14 @@ def score_for_model():
     
     
 def score_for_visit_at_feeder():
-<<<<<<< HEAD
     tag = "_feeder_H_0.07.json"
-    observation_file="Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations"+tag
-    Hmm_result_file="Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag
+    observation_file="videos/GR77_20200512_111314DBN_result_with_observations"+tag
+    Hmm_result_file="videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag
 
-    #observation_file="Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations_feeder_n_0.5.json"
+    #observation_file="videos/GR77_20200512_111314DBN_result_with_observations_feeder_n_0.5.json"
     
     #adding_atq(0, output_file=observation_file, feeder=True, video_debut=dt.datetime(2020, 5, 12, 9, 0,0), video_fin= dt.datetime(2020, 5, 12, 9, 10,0), )
-    process_forwad_backward(observation_file,nbr_visit=0, json_save_path="Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag)
+    process_forwad_backward(observation_file,nbr_visit=0, json_save_path="videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result"+tag)
     print("ok")
     
     hmm_track = read_data(Hmm_result_file)
@@ -273,14 +262,13 @@ def score_for_visit_at_feeder():
 
 def score_for_re_id_visit_at_feeder():
     from Bytetrack_re_id import produce_re_id_results 
-    """observation_file="Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations_feeder.json"
+    """observation_file="videos/GR77_20200512_111314DBN_result_with_observations_feeder.json"
     adding_atq(1, output_file=observation_file, feeder=True, video_debut=dt.datetime(2020, 5, 12, 9, 0,0), video_fin= dt.datetime(2020, 5, 12, 9, 10,0), )
-    process_forwad_backward(observation_file,nbr_visit=1, json_save_path="Bytetrack/videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json")
+    process_forwad_backward(observation_file,nbr_visit=1, json_save_path="videos/GR77_20200512_111314_with_atq_tracking_with_HMM_result_feeder.json")
     print("ok")"""
-<<<<<<< HEAD
     print("we start re-identification")
-    re_id_track_result_file = "Bytetrack/videos/GR77_20200512_111314DBN_re_id.json"
-    track_with_observation_file= "Bytetrack/videos/GR77_20200512_111314DBN_result_with_observations_feeder.json"
+    re_id_track_result_file = "videos/GR77_20200512_111314DBN_re_id.json"
+    track_with_observation_file= "videos/GR77_20200512_111314DBN_result_with_observations_feeder.json"
     tracking_result =produce_re_id_results(track_with_observation_file, re_id_track_result_file)
     re_id_track = read_data(re_id_track_result_file)
     acc, rec, f1= precise_accuracy_track(label_track, re_id_track, basic_tracker=True)
@@ -294,7 +282,7 @@ def score_for_re_id_visit_at_feeder():
 
 import argparse
 if __name__=="__main__":
-    score_for_model()
+    #score_for_model()
     parser = argparse.ArgumentParser(description="Arguments for the performance assessement")
     parser.add_argument("--mode", type=str, help="Name of the mode.")
     args = parser.parse_args()
@@ -307,8 +295,4 @@ if __name__=="__main__":
     if args.mode == "tracker_test":
         score_for_mot_trackers()
     if args.mode == "re_id":
-<<<<<<< HEAD
         score_for_re_id_visit_at_feeder()
-=======
-        score_for_re_id_visit_at_feeder()
->>>>>>> origin/main
