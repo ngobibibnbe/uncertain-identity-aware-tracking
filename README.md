@@ -20,12 +20,9 @@ To install the required packages, run the following commands:
 
 ```bash
 pip install -r Bytetrack_requirements.txt
-
 pip3 install cython
 pip3 install 'git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI'
-
 pip3 install cython_bbox
-
 pip install -r requirements.txt
 ```
 
