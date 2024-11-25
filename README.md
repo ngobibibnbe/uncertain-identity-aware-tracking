@@ -1,5 +1,5 @@
 # Uncertain Identity Aware Tracking
-
+[CVPR2024 CV4animals workshop Poster](https://docs.google.com/presentation/d/1klgNkdSTpnmbVSoyf4YXuvV2rgNWDVw1/edit#slide=id.g2e60e69501b_0_1) 
 
 ### Dataset 
 
