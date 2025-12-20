@@ -5,6 +5,8 @@
 
 The dataset is available in the dataset folder
 
+### Model
+the pig dataset model is available at https://huggingface.co/SophieNgo/Pig-Tracking-Dataset-and-model/tree/main
 
 ### Files 
 
